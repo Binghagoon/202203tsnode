@@ -60,9 +60,12 @@ const connWithPromise = (
   });
 };
 
+const getTimeStamp = () => Math.floor(Date.now() / 1000);
+
 export {
   objectKeyRename,
   treatError,
   noSufficientArgumentError,
   connWithPromise,
+  getTimeStamp,
 };
