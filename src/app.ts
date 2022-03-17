@@ -9,7 +9,7 @@ import call from "./call";
 import user from "./user";
 import authentication from "./authentication";
 import message from "./message";
-import kakaoToken from "./kakao-token";
+import kakaoToken from "./kakao_token";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
@@ -54,8 +54,9 @@ app.get("/", function (req, res) {
         d.toLocaleString(undefined, { timeZone: "Asia/Seoul" }) +
         " maybe this is KST.\n"
     );
-  } catch (e) {
-    console.log(e);
+      } catch (e) {
+      console.error(e);
+      console.log("error occured please see error log.");
     res
       .status(500)
       .send({ status: "error", errorMessage: "Internal Server Error" });
@@ -65,8 +66,9 @@ app.post("/post-test", async function (req, res) {
   try {
     debugger;
     res.send(`Hello`);
-  } catch (e) {
-    console.log(e);
+      } catch (e) {
+      console.error(e);
+      console.log("error occured please see error log.");
     res
       .status(500)
       .send({ status: "error", errorMessage: "Internal Server Error" });
@@ -74,8 +76,9 @@ app.post("/post-test", async function (req, res) {
 });
 app.get("/throw-error", async function (req, res) {
   try {
-  } catch (e) {
-    console.log(e);
+      } catch (e) {
+      console.error(e);
+      console.log("error occured please see error log.");
     res
       .status(500)
       .send({ status: "error", errorMessage: "Internal Server Error" });
