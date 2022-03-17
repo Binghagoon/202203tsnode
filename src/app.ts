@@ -10,6 +10,7 @@ import user from "./user";
 import authentication from "./authentication";
 import message from "./message";
 import kakaoToken from "./kakao_token";
+import { Executable } from "../types/types";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
@@ -27,7 +28,7 @@ app.use(function (req, res, next) {
 });
 
 //var serverFunction = require("./open_server");
-const executableJS = [
+const executableJS : Executable[]= [
   recordPositions,
   userLocation,
   call,
@@ -36,7 +37,7 @@ const executableJS = [
   message,
   kakaoToken,
 ];
-const promise = executableJS.map((jsFile) => jsFile.execute(app, conn));
+const promise = executableJS.map((jsFile) => jsFile(app, conn));
 Promise.all(promise)
   .then(function (values) {
     console.log("All files are executed.");
