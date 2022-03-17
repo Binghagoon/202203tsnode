@@ -1,17 +1,19 @@
 import express, { Request, Response, NextFunction, Express } from "express";
 import { QueryError, Connection } from "mysql2";
-import { Executable, PathObject } from "../types/types";
+import {
+  AppCallback,
+  AsyncExecutable,
+  Executable,
+  PathObject,
+} from "../types/types";
 import {
   objectKeyRename,
   treatError,
   noSufficientArgumentError,
 } from "./base_module";
 
-const execute = async function (
-  app: Express,
-  conn: Connection
-): Promise<PathObject | void> {
-  async function getId(req: Request, res: Response) {
+const execute: AsyncExecutable = async function (app, conn) {
+  const getId: AppCallback = (req, res) => {
     try {
       let sql = "SELECT `id` FROM `user` WHERE username = ?";
       let username = req.query.username;
@@ -27,9 +29,9 @@ const execute = async function (
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
+  };
 
-  async function getUserInfo(req: Request, res: Response) {
+  const getUserInfo: AppCallback = (req, res) => {
     try {
       let sql = "SELECT *  FROM user_view WHERE id = ?";
       let id = req.query.id;
@@ -50,9 +52,9 @@ const execute = async function (
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
+  };
 
-  async function getStudentInfo(req: Request, res: Response) {
+  const getStudentInfo: AppCallback = (req, res) => {
     try {
       let sql = "SELECT id, student_number, major FROM user_view WHERE `id`=?";
       let id = req.query.id;
@@ -72,9 +74,9 @@ const execute = async function (
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
+  };
 
-  async function getDriverInfo(req: Request, res: Response) {
+  const getDriverInfo: AppCallback = (req, res) => {
     try {
       let sql = "SELECT id, licence, carname FROM user_view WHERE `id`=?";
       let id = req.query.id;
@@ -92,9 +94,9 @@ const execute = async function (
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
+  };
 
-  async function postUpdateStudentInfo(req: Request, res: Response) {
+  const postUpdateStudentInfo: AppCallback = (req, res) => {
     try {
       let sql =
         "UPDATE student_info SET student_number = ?, major = ? WHERE `id` = ?";
@@ -120,9 +122,9 @@ const execute = async function (
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
+  };
 
-  async function postUpdateDriverInfo(req: Request, res: Response) {
+  const postUpdateDriverInfo: AppCallback = (req, res) => {
     try {
       let sql = "UPDATE driver_info SET licence = ?, name = ? WHERE `id` = ?";
       let id = req.body.id;
@@ -147,7 +149,7 @@ const execute = async function (
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
+  };
 
   app.get("/get-id", getId);
   app.get("/get-user-info", getUserInfo);

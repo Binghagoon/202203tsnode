@@ -1,4 +1,9 @@
-import { PathObject, TokenObject } from "./../types/types.d";
+import {
+  AppCallback,
+  AsyncExecutable,
+  PathObject,
+  TokenObject,
+} from "./../types/types.d";
 import express, { Request, Response, NextFunction, Express } from "express";
 import { QueryError, Connection } from "mysql2";
 import * as sensitiveValue from "./sensitive-value.json";
@@ -27,9 +32,9 @@ export const writeToken = (data: TokenObject): void => {
     let newSensitiveValue = sensitiveValue;
     newSensitiveValue.kakao_token = newToken;
     stringData = JSON.stringify(newSensitiveValue, null, 2);
-      } catch (e) {
-      console.error(e);
-      console.log("error occured please see error log.");
+  } catch (e) {
+    console.error(e);
+    console.log("error occured please see error log.");
     return;
   }
   fs.writeFile("./sensitive-value.json", stringData, (err) => {
@@ -42,9 +47,7 @@ export const writeToken = (data: TokenObject): void => {
   });
 };
 
-export const verifyToken = async (
-  forceRefresh: boolean = false
-): Promise<void> => {
+export const verifyToken = async (forceRefresh: boolean = false) => {
   const ts = getTimeStamp();
   const diff = kakaoToken.time_stamp + kakaoToken.expires_in - ts;
   if (diff <= 0) {
@@ -67,7 +70,7 @@ export const verifyToken = async (
   refreshToken = kakaoToken.refresh_token;
 };
 
-const doRefreshToken = async (refresh_token?: string): Promise<void> => {
+const doRefreshToken = async (refresh_token?: string) => {
   const ts = getTimeStamp();
   const diff = kakaoToken.time_stamp + kakaoToken.expires_in - ts;
   if (diff < 0) {
@@ -94,11 +97,8 @@ const doRefreshToken = async (refresh_token?: string): Promise<void> => {
   }
 };
 
-const execute = async (
-  app: Express,
-  conn: Connection
-): Promise<PathObject | void> => {
-  const postSetToken = async (req: Request, res: Response) => {
+const execute: AsyncExecutable = async (app, conn) => {
+  const postSetToken: AppCallback = async (req, res) => {
     try {
       accessToken = req.body["access_token"];
       refreshToken = req.body["refresh_token"];
@@ -119,11 +119,7 @@ const execute = async (
       });
     }
   };
-
-  verifyToken();
-
-  app.post("/set-token", postSetToken);
-  app.post("/refresh-token", async (req: Request, res: Response) => {
+  const postRefrashToken: AppCallback = async (req, res) => {
     try {
       await doRefreshToken();
       console.log("Token has been refreshed successfully.");
@@ -132,13 +128,19 @@ const execute = async (
       });
       return;
     } catch (e) {
-      console.log("Error occurred while refreshing token.");
-      console.log(e);
+      console.log("Error occured while refreshing token.");
+      console.error("Error occured while refreshing token.");
+      console.error(e);
       res.status(500).send({
         status: "error",
       });
       return;
     }
-  });
+  };
+
+  verifyToken();
+
+  app.post("/set-token", postSetToken);
+  app.post("/refresh-token", postRefrashToken);
 };
 export default execute;

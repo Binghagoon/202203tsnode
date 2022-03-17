@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express";
 import { Connection } from "mysql2";
-import { PathObject } from "../types/types";
+import { AppCallback, PathObject } from "../types/types";
 import {
   noSufficientArgumentError,
   treatError,
@@ -11,7 +11,7 @@ const execute = async function (
   app: Express,
   conn: Connection
 ): Promise<PathObject | void> {
-  async function getSignIn(req: Request, res: Response) {
+  const getSignIn: AppCallback = async (req, res) => {
     try {
       let sql =
         "SELECT u.id, rl.role FROM  `user` u LEFT OUTER JOIN role_list rl ON u.role = rl.id WHERE username = ? AND (pw IS NULL OR  pw = ?)";
@@ -43,7 +43,7 @@ const execute = async function (
     }
   }
 
-  async function postSignup(req: Request, res: Response) {
+  const postSignUp: AppCallback = async (req, res) => {
     try {
       //POST
       let sql =
@@ -71,7 +71,7 @@ const execute = async function (
     }
   }
 
-  async function putSignUpAllow(req: Request, res: Response) {
+  const putSignUpAllow: AppCallback = async (req, res) => {
     try {
       let args = req.body;
       let type = args.type;

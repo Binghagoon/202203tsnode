@@ -26,3 +26,4 @@ export type TokenObject = {
   access_token: string;
   expires_in: number;
 };
+export type AppCallback = (req: Request, res:Response) => void | any | Promise<void | any>;
