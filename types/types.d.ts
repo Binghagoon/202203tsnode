@@ -7,11 +7,12 @@ import {
   ResultSetHeader,
   Connection,
 } from "mysql2";
-type AsyncExecutable = Promise<Executable>;
+type AsyncExecutable = (app: Express, conn: Connection)=>Promise<PathObject | void>;
 export type PathObject = {
-  get: string[] | null;
-  post: string[] | null;
-  put: string[] | null;
+  get?: string[];
+  post?: string[];
+  put?: string[];
+  delete?: string[];
 };
 export type Executable = (app: Express, conn: Connection) => PathObject | void;
 export type TokenObject = {
