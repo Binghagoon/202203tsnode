@@ -4,7 +4,7 @@ import { AsyncExecutable } from "../types/types";
 import { Response, Request } from "express";
 
 const execute: AsyncExecutable = async (app, conn) => {
-  function records(req: Request, res: Response) {
+  function getrecordPositions(req: Request, res: Response) {
     try {
       conn.query("SELECT * FROM record_position;", function (err, results) {
         if (err) throw err;
@@ -28,8 +28,8 @@ const execute: AsyncExecutable = async (app, conn) => {
     }
   }
 
-  app.get("/record-position", records);
-  app.get("/record-positions", records);
+  app.get("/record-position", getrecordPositions);
+  app.get("/record-positions", getrecordPositions);
 
   return {
     get: ["/record-position", "/record-positions"],
