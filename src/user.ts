@@ -42,7 +42,7 @@ function noSufficientArgumentError(
   return false;
 }
 
-export const execute = async function (
+const execute = async function (
   app: Express,
   conn: Connection
 ): Promise<PathObject | void> {
@@ -192,3 +192,4 @@ export const execute = async function (
   app.post("/update-driver-info", postUpdateDriverInfo);
 
 };
+export default execute;
