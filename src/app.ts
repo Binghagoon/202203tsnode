@@ -3,7 +3,7 @@ import bodyPraser from "body-parser";
 import fs from "fs/promises";
 import sensitive from "./sensitive-value.json";
 import mysql from "mysql2";
-import recordPositions from "./record-positions";
+import recordPositions from "./record_positions";
 import userLocation from "./user-location";
 import call from "./call";
 import user from "./user";
