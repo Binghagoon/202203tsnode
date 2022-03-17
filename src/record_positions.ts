@@ -1,8 +1,8 @@
 // It's refered from 202009-node/record-positions.js at 83a8d7c1e2df81a7fa79cbf1c03014547b0f2de0
 
-import { AsyncExecutable,AppCallback } from "../types/types";
+import { Executable,AppCallback } from "../types/types";
 
-const execute: AsyncExecutable = async (app, conn) => {
+const execute: Executable = async (app, conn) => {
   const getrecordPositions: AppCallback = (req, res) => {
     try {
       conn.query("SELECT * FROM record_position;", function (err, results) {

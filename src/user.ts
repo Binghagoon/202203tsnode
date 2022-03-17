@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction, Express } from "express";
 import { QueryError, Connection } from "mysql2";
 import {
   AppCallback,
-  AsyncExecutable,
   Executable,
   PathObject,
 } from "../types/types";
@@ -12,7 +11,7 @@ import {
   noSufficientArgumentError,
 } from "./base_module";
 
-const execute: AsyncExecutable = async function (app, conn) {
+const execute: Executable = async function (app, conn) {
   const getId: AppCallback = (req, res) => {
     try {
       let sql = "SELECT `id` FROM `user` WHERE username = ?";

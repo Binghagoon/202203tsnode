@@ -1,10 +1,10 @@
 // It's refered from 202009-node/user-location.js at d79410924f350a5a88694c77fb02527abcaf188d
 
-import { AppCallback, AsyncExecutable } from "../types/types";
+import { AppCallback, Executable } from "../types/types";
 import { Response, Request } from "express";
 let getno = require("./get-id-from-username");
 
-const execute: AsyncExecutable = async (app, conn) => {
+const execute: Executable = async (app, conn) => {
   const locationInsert: AppCallback = async (req, res) => {
     try {
       let sql =

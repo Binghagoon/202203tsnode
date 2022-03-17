@@ -1,6 +1,6 @@
 import {
   AppCallback,
-  AsyncExecutable,
+  Executable,
   PathObject,
   TokenObject,
 } from "./../types/types.d";
@@ -97,7 +97,7 @@ const doRefreshToken = async (refresh_token?: string) => {
   }
 };
 
-const execute: AsyncExecutable = async (app, conn) => {
+const execute: Executable = async (app, conn) => {
   const postSetToken: AppCallback = async (req, res) => {
     try {
       accessToken = req.body["access_token"];
