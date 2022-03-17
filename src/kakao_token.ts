@@ -27,8 +27,9 @@ export const writeToken = (data: TokenObject): void => {
     let newSensitiveValue = sensitiveValue;
     newSensitiveValue.kakao_token = newToken;
     stringData = JSON.stringify(newSensitiveValue, null, 2);
-  } catch (e) {
-    console.log(e);
+      } catch (e) {
+      console.error(e);
+      console.log("error occured please see error log.");
     return;
   }
   fs.writeFile("./sensitive-value.json", stringData, (err) => {
@@ -46,8 +47,8 @@ export const verifyToken = async (
 ): Promise<void> => {
   const ts = getTimeStamp();
   const diff = kakaoToken.time_stamp + kakaoToken.expires_in - ts;
-  if (diff < 0) {
-    console.log("Kakao token has been expired before %d seconds.");
+  if (diff <= 0) {
+    console.log("Kakao token has been expired before %d seconds.", -diff);
   } else {
     console.log(
       `Kakao token can live for ${diff} seconds from now. (Now is ${ts}.)`
@@ -93,7 +94,7 @@ const doRefreshToken = async (refresh_token?: string): Promise<void> => {
   }
 };
 
-export const execute = async (
+const execute = async (
   app: Express,
   conn: Connection
 ): Promise<PathObject | void> => {
@@ -140,3 +141,4 @@ export const execute = async (
     }
   });
 };
+export default execute;

@@ -7,7 +7,7 @@ import {
   connWithPromise,
 } from "./base_module";
 
-export const execute = async function (
+const execute = async function (
   app: Express,
   conn: Connection
 ): Promise<PathObject | void> {
@@ -132,3 +132,4 @@ export const execute = async function (
     }
   }
 };
+export default execute;
