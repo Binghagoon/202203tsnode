@@ -1,9 +1,10 @@
 // It's refered from 202009-node/record-positions.js at 83a8d7c1e2df81a7fa79cbf1c03014547b0f2de0
 
-import { Executable,AppCallback } from "../types/types";
+import { Executable } from "../types/types";
+import { RequestHandler } from "express";
 
 const execute: Executable = async (app, conn) => {
-  const getrecordPositions: AppCallback = (req, res) => {
+  const getrecordPositions: RequestHandler = (req, res) => {
     try {
       conn.query("SELECT * FROM record_position;", function (err, results) {
         if (err) throw err;
@@ -25,10 +26,8 @@ const execute: Executable = async (app, conn) => {
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
-  let a = function(){
-    
-  }
+  };
+  let a = function () {};
 
   app.get("/record-position", getrecordPositions);
   app.get("/record-positions", getrecordPositions);

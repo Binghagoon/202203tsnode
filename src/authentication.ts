@@ -1,6 +1,6 @@
-import { Express, Request, Response } from "express";
+import { Express, Request, Response, RequestHandler } from "express";
 import { Connection } from "mysql2";
-import { AppCallback, PathObject } from "../types/types";
+import { PathObject } from "../types/types";
 import {
   noSufficientArgumentError,
   treatError,
@@ -11,7 +11,7 @@ const execute = async function (
   app: Express,
   conn: Connection
 ): Promise<PathObject | void> {
-  const getSignIn: AppCallback = async (req, res) => {
+  const getSignIn: RequestHandler = async (req, res) => {
     try {
       let sql =
         "SELECT u.id, rl.role FROM  `user` u LEFT OUTER JOIN role_list rl ON u.role = rl.id WHERE username = ? AND (pw IS NULL OR  pw = ?)";
@@ -41,9 +41,9 @@ const execute = async function (
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
+  };
 
-  const postSignUp: AppCallback = async (req, res) => {
+  const postSignUp: RequestHandler = async (req, res) => {
     try {
       //POST
       let sql =
@@ -69,9 +69,9 @@ const execute = async function (
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
+  };
 
-  const putSignUpAllow: AppCallback = async (req, res) => {
+  const putSignUpAllow: RequestHandler = async (req, res) => {
     try {
       let args = req.body;
       let type = args.type;
@@ -130,6 +130,6 @@ const execute = async function (
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
     }
-  }
+  };
 };
 export default execute;

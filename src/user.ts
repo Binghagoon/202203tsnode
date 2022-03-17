@@ -1,10 +1,12 @@
-import express, { Request, Response, NextFunction, Express } from "express";
+import express, {
+  Request,
+  Response,
+  NextFunction,
+  Express,
+  RequestHandler,
+} from "express";
 import { QueryError, Connection } from "mysql2";
-import {
-  AppCallback,
-  Executable,
-  PathObject,
-} from "../types/types";
+import { Executable, PathObject } from "../types/types";
 import {
   objectKeyRename,
   treatError,
@@ -12,7 +14,7 @@ import {
 } from "./base_module";
 
 const execute: Executable = async function (app, conn) {
-  const getId: AppCallback = (req, res) => {
+  const getId: RequestHandler = (req, res) => {
     try {
       let sql = "SELECT `id` FROM `user` WHERE username = ?";
       let username = req.query.username;
@@ -30,7 +32,7 @@ const execute: Executable = async function (app, conn) {
     }
   };
 
-  const getUserInfo: AppCallback = (req, res) => {
+  const getUserInfo: RequestHandler = (req, res) => {
     try {
       let sql = "SELECT *  FROM user_view WHERE id = ?";
       let id = req.query.id;
@@ -53,7 +55,7 @@ const execute: Executable = async function (app, conn) {
     }
   };
 
-  const getStudentInfo: AppCallback = (req, res) => {
+  const getStudentInfo: RequestHandler = (req, res) => {
     try {
       let sql = "SELECT id, student_number, major FROM user_view WHERE `id`=?";
       let id = req.query.id;
@@ -75,7 +77,7 @@ const execute: Executable = async function (app, conn) {
     }
   };
 
-  const getDriverInfo: AppCallback = (req, res) => {
+  const getDriverInfo: RequestHandler = (req, res) => {
     try {
       let sql = "SELECT id, licence, carname FROM user_view WHERE `id`=?";
       let id = req.query.id;
@@ -95,7 +97,7 @@ const execute: Executable = async function (app, conn) {
     }
   };
 
-  const postUpdateStudentInfo: AppCallback = (req, res) => {
+  const postUpdateStudentInfo: RequestHandler = (req, res) => {
     try {
       let sql =
         "UPDATE student_info SET student_number = ?, major = ? WHERE `id` = ?";
@@ -123,7 +125,7 @@ const execute: Executable = async function (app, conn) {
     }
   };
 
-  const postUpdateDriverInfo: AppCallback = (req, res) => {
+  const postUpdateDriverInfo: RequestHandler = (req, res) => {
     try {
       let sql = "UPDATE driver_info SET licence = ?, name = ? WHERE `id` = ?";
       let id = req.body.id;

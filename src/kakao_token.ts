@@ -1,10 +1,11 @@
-import {
-  AppCallback,
-  Executable,
-  PathObject,
-  TokenObject,
-} from "./../types/types.d";
-import express, { Request, Response, NextFunction, Express } from "express";
+import { Executable, PathObject, TokenObject } from "./../types/types.d";
+import express, {
+  Request,
+  Response,
+  NextFunction,
+  Express,
+  RequestHandler,
+} from "express";
 import { QueryError, Connection } from "mysql2";
 import * as sensitiveValue from "./sensitive-value.json";
 import { kakao_token as kakaoToken } from "./sensitive-value.json";
@@ -98,7 +99,7 @@ const doRefreshToken = async (refresh_token?: string) => {
 };
 
 const execute: Executable = async (app, conn) => {
-  const postSetToken: AppCallback = async (req, res) => {
+  const postSetToken: RequestHandler = async (req, res) => {
     try {
       accessToken = req.body["access_token"];
       refreshToken = req.body["refresh_token"];
@@ -119,7 +120,7 @@ const execute: Executable = async (app, conn) => {
       });
     }
   };
-  const postRefrashToken: AppCallback = async (req, res) => {
+  const postRefrashToken: RequestHandler = async (req, res) => {
     try {
       await doRefreshToken();
       console.log("Token has been refreshed successfully.");

@@ -1,11 +1,11 @@
 // It's refered from 202009-node/user-location.js at d79410924f350a5a88694c77fb02527abcaf188d
 
-import { AppCallback, Executable } from "../types/types";
-import { Response, Request } from "express";
+import { Executable } from "../types/types";
+import { Response, Request, RequestHandler } from "express";
 let getno = require("./get-id-from-username");
 
 const execute: Executable = async (app, conn) => {
-  const locationInsert: AppCallback = async (req, res) => {
+  const locationInsert: RequestHandler = async (req, res) => {
     try {
       let sql =
         "INSERT INTO user_location (id, latitude, longitude) VALUES (?, ?, ?);";
@@ -40,7 +40,7 @@ const execute: Executable = async (app, conn) => {
     }
   };
 
-  const locationUpdate: AppCallback = async (req, res) => {
+  const locationUpdate: RequestHandler = async (req, res) => {
     try {
       let sql =
         "UPDATE user_location SET latitude = ?, longitude = ? WHERE id = ?;";
@@ -68,7 +68,7 @@ const execute: Executable = async (app, conn) => {
     }
   };
 
-  const locationDelete: AppCallback = async (req, res) => {
+  const locationDelete: RequestHandler = async (req, res) => {
     try {
       let sql = "DELETE FROM user_location WHERE id = ?;";
       let id = req.body.id;
@@ -108,12 +108,12 @@ const execute: Executable = async (app, conn) => {
     }
   };
 
-  const getLocation: AppCallback = async (req, res) => {
+  const getLocation: RequestHandler = async (req, res) => {
     try {
       let sql = "SELECT latitude, longitude FROM user_location WHERE id = ?";
       let no = req.query.id;
       conn.query(sql, [no], function (err, results) {
-        if(!Array.isArray(results)){
+        if (!Array.isArray(results)) {
           console.error("results are not array. Error rised on getLocation.");
           res
             .status(500)

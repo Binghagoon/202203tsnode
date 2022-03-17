@@ -13,7 +13,10 @@ export type PathObject = {
   put?: string[];
   delete?: string[];
 };
-export type Executable = (app: Express, conn: Connection) => PathObject | void | Promise<PathObject | void>;
+export type Executable = (
+  app: Express,
+  conn: Connection
+) => PathObject | void | Promise<PathObject | void>;
 export type TokenObject = {
   [key: string]: any;
   error?: Error;
@@ -25,4 +28,3 @@ export type TokenObject = {
   access_token: string;
   expires_in: number;
 };
-export type AppCallback = (req: Request, res:Response) => void | any | Promise<void | any>;
