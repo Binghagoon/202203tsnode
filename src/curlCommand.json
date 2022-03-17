@@ -1,0 +1,35 @@
+{
+  "memo": {
+    "exe": "curl -X POST 'https://kapi.kakao.com/v2/api/talk/memo/default/send'",
+    "headers": [
+      "Content-Type: application/x-www-form-urlencoded",
+      "Authorization: Bearer ${accessToken}"
+    ],
+    "data": ["template_object=${templateObject}"]
+  },
+  "friends": {
+    "exe": "curl -v -G GET 'https://kapi.kakao.com/v1/api/talk/friends'",
+    "headers": ["Authorization: Bearer ${accessToken}"],
+    "data": ["limit=10"]
+  },
+  "sendMessage": {
+    "exe": "curl -v -X POST \"https://kapi.kakao.com/v1/api/talk/friends/message/default/send\"",
+    "headers": [
+      "Content-Type: application/x-www-form-urlencoded",
+      "Authorization: Bearer ${accessToken}"
+    ],
+    "data": [
+      "receiver_uuids=[\"GS0UJxcjFCENPw4_Cj0POAEtGyscJRAmaQ\"]",
+      "template_object=${templateObject}"
+    ]
+  },
+  "getToken": {
+    "exe": "curl -v -X POST \"https://kauth.kakao.com/oauth/token\"",
+    "headers": ["Content-Type: application/x-www-form-urlencoded"],
+    "data": [
+      "grant_type=refresh_token",
+      "client_id=f0d540b36132f5297ab997d121a5c838",
+      "refresh_token=${refreshToken}"
+    ]
+  }
+}
