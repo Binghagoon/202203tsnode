@@ -1,46 +1,11 @@
 import express, { Request, Response, NextFunction, Express } from "express";
 import { QueryError, Connection } from "mysql2";
 import { Executable, PathObject } from "../types/types";
-function objectKeyRename(
-  obj: { [x: string]: any },
-  originalName: string,
-  changedName: string
-) {
-  obj[changedName] = obj[originalName];
-  delete obj[originalName];
-}
-
-function treatError(err: QueryError | null, res: Response) {
-  if (!err) return 0;
-  console.log(err.stack);
-  if (res) {
-    res.send({
-      status: "error",
-      errorMessage: "not defined error",
-    });
-  }
-  debugger;
-  return 1;
-}
-
-function noSufficientArgumentError(
-  args: any[],
-  res: express.Response<any, Record<string, any>>
-) {
-  //to be tested.
-  let b = false;
-  for (const val of args) {
-    b = b || val == undefined;
-  }
-  if (b) {
-    res.send({
-      status: "error",
-      errorMessage: "not sufficient arguments.",
-    });
-    return true;
-  }
-  return false;
-}
+import {
+  objectKeyRename,
+  treatError,
+  noSufficientArgumentError,
+} from "./base_module";
 
 const execute = async function (
   app: Express,
@@ -190,6 +155,5 @@ const execute = async function (
   app.get("/get-driver-info", getDriverInfo);
   app.post("/update-student-info", postUpdateStudentInfo);
   app.post("/update-driver-info", postUpdateDriverInfo);
-
 };
 export default execute;
