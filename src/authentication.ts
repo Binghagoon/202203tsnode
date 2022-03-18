@@ -1,16 +1,13 @@
 import { Express, Request, Response, RequestHandler } from "express";
 import { Connection } from "mysql2";
-import { PathObject } from "../types/types";
+import { Executable, PathObject } from "../types/types";
 import {
   noSufficientArgumentError,
   treatError,
   connWithPromise,
 } from "./base_module";
 
-const execute = async function (
-  app: Express,
-  conn: Connection
-): Promise<PathObject | void> {
+const execute: Executable = async function (app, conn) {
   const getSignIn: RequestHandler = async (req, res) => {
     try {
       let sql =
