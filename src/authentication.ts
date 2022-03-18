@@ -1,6 +1,5 @@
-import { Express, Request, Response, RequestHandler } from "express";
-import { Connection } from "mysql2";
-import { Executable, PathObject } from "../types/types";
+import { RequestHandler } from "express";
+import { Executable } from "../types/types";
 import {
   noSufficientArgumentError,
   treatError,

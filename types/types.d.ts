@@ -28,3 +28,10 @@ export type TokenObject = {
   access_token: string;
   expires_in: number;
 };
+export type CallStatus =
+  | "waiting"
+  | "canceled"
+  | "allocated"
+  | "moving"
+  | "finish";
+export type SQLType = "SELECT" | "UPDATE" | "DELETE" | "INSERT";
