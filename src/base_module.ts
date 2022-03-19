@@ -25,9 +25,11 @@ const isHTTPError = (e: unknown): e is HTTPError => {
     return false;
   }
 };
-const isError = (x: any): x is Error => "message" in x;
+const isError = (x: any): x is Error => typeof x == "object" && "message" in x;
 /**
- * 
+ * HTTPError object can use every situation.
+ * If you use 4XX error code you should throw number between 4XX.
+ * 5XX error can use just throw string or Error object.
  * @param res Express res
  * @param callback Some function, function or Promise; async function
  * @param args function's arguments
@@ -42,13 +44,13 @@ const catchError = async (
     return await callback(...args);
   } catch (e) {
     let message: string, code: number, stack: string, errorObject: Error;
-    errorObject = new Error();
-    stack = errorObject.stack ? errorObject.stack : "Can't find stack.";
     message = "Unknown error";
     code = 500;
+    stack = "There is no stack.";
     if (isHTTPError(e)) {
       message = e[0];
       code = e[1];
+      stack = e[2]? e[2]:stack;
     } else if (isError(e)) {
       message = e.message;
       code = 500;
@@ -70,25 +72,23 @@ const catchError = async (
       code = e;
     }
     let seoulTime = moment().tz("Asia/Seoul").format();
-    console.error(
-      `-------Error Print
-      Time(in KST): ${seoulTime}
-      Error: ${message}
-      Code:${code}
-      Stack:${stack}
-      -------Error Print End`
+    seoulTime = seoulTime.slice(0, -6); //Delete +09:00
+    console.error("\n-------Error Print");
+    console.error(`Time(in KST): ${seoulTime}`);
+    console.error(`Error: ${message}`);
+    console.error(`Code:${code}`);
+    console.error(`Stack:${stack}`);
+    console.error("-------Error Print End\n");
+    console.log(
+      `Error occurred{\n  Time(in KST):${seoulTime},\n  Error: ${message},\n  Code:${code}\n}`
     );
+
     res.status(code).send({ status: "error", errorMessage: message });
     return null;
   }
 };
 /**
- * 
- * @param err 
- * @param res 
- * @param location
- * @returns
- * @deprecated  
+ * @deprecated
  */
 const treatError = (
   err: QueryError | null,
@@ -107,12 +107,12 @@ const treatError = (
   return 1;
 };
 /**
- * 
- * @param res 
- * @param reason 
- * @param error 
+ *
+ * @param res
+ * @param reason
+ * @param error
  * @param code
- * @deprecated 
+ * @deprecated
  */
 const raiseError = (
   res: Response,
@@ -139,10 +139,6 @@ const raiseError = (
   }
 };
 /**
- * 
- * @param res 
- * @param callback 
- * @returns 
  * @deprecated
  */
 //const raiseHTTPError(res:Response, code:number,option?:{reason?:string,}) //TBD
@@ -170,11 +166,11 @@ const noSufficientArgumentError = (
     if (res) {
       res.send({
         status: "error",
-        errorMessage: "not sufficient arguments.",
+        errorMessage: "No sufficient arguments",
       });
       return true;
     } else {
-      throw "No sufficient arguments";
+      throw ["No sufficient arguments", 400];
     }
   }
   return false;
@@ -279,6 +275,7 @@ export {
   getPositionName,
   selectTypeGuard,
   OkPacketTypeGuard,
+  catchError,
   allowCallStatus,
   statusToNumber,
 };
