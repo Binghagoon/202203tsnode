@@ -35,3 +35,11 @@ export type CallStatus =
   | "moving"
   | "finish";
 export type SQLType = "SELECT" | "UPDATE" | "DELETE" | "INSERT";
+export type SendKakaoMeessageOptions = {
+  departure: string,
+  arrival:string,  
+  phoneAddress: string,
+  seatType?: string
+}
+type CommendType = "memo" | "sendMessage" | "friends" | "getToken";
+type Curl = { exe: string; headers: string[]; data: string[] };
