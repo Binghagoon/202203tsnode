@@ -35,7 +35,7 @@ export const writeToken = (data: TokenObject): void => {
     stringData = JSON.stringify(newSensitiveValue, null, 2);
   } catch (e) {
     console.error(e);
-    console.log("error occured please see error log.");
+    console.log("error occurred. Please see the error log.");
     return;
   }
   fs.writeFile("./sensitive-value.json", stringData, (err) => {
@@ -80,21 +80,28 @@ const doRefreshToken = async (refresh_token?: string) => {
     );
     return;
   }
-  let data = await curl.command(null, curl.commandObject.getToken);
-  try {
-    if (data.error) {
-      console.log("Error occurred.");
-      console.log(data);
-      return;
+  let data = await curl.command("getToken");
+  const isTokenObject = (
+    data: string | object | undefined
+  ): data is TokenObject => {
+    return (data as TokenObject).token_type !== undefined;
+  };
+  if (isTokenObject(data)) {
+    try {
+      if (data.error) {
+        console.log("Error occurred.");
+        console.log(data);
+        return;
+      }
+      data.time_stamp = ts;
+      kakaoToken.access_token = data.access_token;
+      kakaoToken.expires_in = data.expires_in;
+      kakaoToken.time_stamp = ts;
+      writeToken(kakaoToken);
+    } catch (e) {
+      console.log("Error occurred while updating token.");
+      debugger;
     }
-    data.time_stamp = ts;
-    kakaoToken.access_token = data.access_token;
-    kakaoToken.expires_in = data.expires_in;
-    kakaoToken.time_stamp = ts;
-    writeToken(kakaoToken);
-  } catch (e) {
-    console.log("Error occurred while updating token.");
-    debugger;
   }
 };
 

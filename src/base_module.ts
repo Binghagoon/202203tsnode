@@ -83,7 +83,7 @@ const connWithPromise = (
 const getPositionName = async function (
   number: Number,
   conn: Connection
-): Promise<String> {
+): Promise<string> {
   let sql = "SELECT name FROM record_position WHERE id = ?";
   let results = await connWithPromise(conn, sql, [number]);
   return results[0].name;
@@ -92,7 +92,7 @@ const getPositionName = async function (
 const getPhoneAddress = async function (
   number: Number,
   conn: Connection
-): Promise<String> {
+): Promise<string> {
   let sql = "SELECT phone FROM `user` WHERE id = ?";
   let results = await connWithPromise(conn, sql, [number]);
   return results[0].mp;
@@ -108,7 +108,7 @@ const allowCallStatus: CallStatus[] = [
   "finish",
 ];
 
-const statusTonumber: { [status in CallStatus]: number } = {
+const statusToNumber: { [status in CallStatus]: number } = {
   waiting: 0,
   canceled: 1,
   allocated: 2,
@@ -129,5 +129,5 @@ export {
   getPhoneAddress,
   getPositionName,
   allowCallStatus,
-  statusTonumber,
+  statusToNumber,
 };

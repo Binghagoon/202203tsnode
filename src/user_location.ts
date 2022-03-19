@@ -1,4 +1,4 @@
-// It's refered from 202009-node/user-location.js at d79410924f350a5a88694c77fb02527abcaf188d
+// It's referred from 202009-node/user-location.js at d79410924f350a5a88694c77fb02527abcaf188d
 
 import { Executable } from "../types/types";
 import { Response, Request, RequestHandler } from "express";
@@ -113,7 +113,9 @@ const execute: Executable = async (app, conn) => {
       let no = req.query.id;
       conn.query(sql, [no], function (err, results) {
         if (!Array.isArray(results)) {
-          console.error("results are not array. Error rised on getLocation.");
+          console.error(
+            "results are not array. Error has occurred on getLocation."
+          );
           res
             .status(500)
             .send({ status: "error", errorMessage: "Internal Server Error" });

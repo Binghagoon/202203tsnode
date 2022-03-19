@@ -1,5 +1,5 @@
 import express from "express";
-import bodyPraser from "body-parser";
+import bodyParser from "body-parser";
 import fs from "fs/promises";
 import sensitive from "./sensitive-value.json";
 import mysql from "mysql2";
@@ -28,7 +28,7 @@ app.use(function (req, res, next) {
 });
 
 //var serverFunction = require("./open_server");
-const executableJS : Executable[]= [
+const executableJS: Executable[] = [
   recordPositions,
   userLocation,
   call,
@@ -44,7 +44,7 @@ Promise.all(promise)
   })
   .catch(function (error) {
     debugger;
-    console.log("Error occured.");
+    console.log("Error occurred.");
   });
 
 app.get("/", function (req, res) {
@@ -55,9 +55,9 @@ app.get("/", function (req, res) {
         d.toLocaleString(undefined, { timeZone: "Asia/Seoul" }) +
         " maybe this is KST.\n"
     );
-      } catch (e) {
-      console.error(e);
-      console.log("error occured please see error log.");
+  } catch (e) {
+    console.error(e);
+    console.log("Error occurred. Please see the error log.");
     res
       .status(500)
       .send({ status: "error", errorMessage: "Internal Server Error" });
@@ -67,9 +67,9 @@ app.post("/post-test", async function (req, res) {
   try {
     debugger;
     res.send(`Hello`);
-      } catch (e) {
-      console.error(e);
-      console.log("error occured please see error log.");
+  } catch (e) {
+    console.error(e);
+    console.log("Error occurred. Please see the error log.");
     res
       .status(500)
       .send({ status: "error", errorMessage: "Internal Server Error" });
@@ -77,9 +77,9 @@ app.post("/post-test", async function (req, res) {
 });
 app.get("/throw-error", async function (req, res) {
   try {
-      } catch (e) {
-      console.error(e);
-      console.log("error occured please see error log.");
+  } catch (e) {
+    console.error(e);
+    console.log("Error occurred. Please see the error log.");
     res
       .status(500)
       .send({ status: "error", errorMessage: "Internal Server Error" });
