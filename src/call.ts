@@ -6,18 +6,18 @@ import {
   objectKeyRename,
   noSufficientArgumentError,
   allowCallStatus,
-  statusTonumber,
+  statusToNumber,
   getPositionName,
   getPhoneAddress,
   ifErrorRaise500,
   raise500,
 } from "./base_module";
-//import { sendMessage } from "./message";
+import { sendKakaoMessage } from "./message";
 import { CallStatus, Executable } from "types/types";
 import { RequestHandler } from "express";
 import { ifError } from "assert";
 
-function chackStatusString(str: CallStatus) {
+function checkStatusString(str: CallStatus) {
   try {
     let returnBool = false;
     allowCallStatus.forEach(function (value, index, array) {
@@ -60,13 +60,13 @@ const execute: Executable = async function (app, conn) {
         let departureName = await getPositionName(departureNo, conn);
         let arrivalName = await getPositionName(arrivalNo, conn);
         let phoneAddress = await getPhoneAddress(no, conn);
-        await sendMessage({
+        await sendKakaoMessage({
           departure: departureName,
           arrival: arrivalName,
           phoneAddress: phoneAddress,
         });
       } catch (e) {
-        console.log("Error occurred when send kakao message.");
+        console.log("Error occurred while sending kakao message.");
         console.log(e);
         debugger;
       }
@@ -151,7 +151,7 @@ const execute: Executable = async function (app, conn) {
 
   const getNoDriverCall: RequestHandler = (req, res) => {
     try {
-      let sql = "SELECT * FROM call_view WHERE status = 'wating'";
+      let sql = "SELECT * FROM call_view WHERE status = 'waiting'";
       conn.query(sql, function (err, results) {
         if (treatError(err, res, "noDriverCall")) {
           raise500(res);
@@ -209,14 +209,14 @@ const execute: Executable = async function (app, conn) {
         }
         let sql = "SELECT student_id FROM call_view WHERE call_id = ?";
         conn.query(sql, [callNo], function (err, results, fields) {
-            if(!Array.isArray(results)){
-                raise500(res);
-                return;
-            }
+          if (!Array.isArray(results)) {
+            raise500(res);
+            return;
+          }
           let result = results[0];
-          if(!("student_id" in result)){
-              raise500(res);
-              return;
+          if (!("student_id" in result)) {
+            raise500(res);
+            return;
           }
           res.send({
             studentid: result.student_id,
@@ -242,12 +242,12 @@ const execute: Executable = async function (app, conn) {
       }
       conn.query(sql, [no], function (err, results, fields) {
         if (treatError(err, res, "callEnd")) {
-            raise500(res);
+          raise500(res);
           return;
         }
-        if(Array.isArray(results)){
-            raise500(res);
-            return;
+        if (Array.isArray(results)) {
+          raise500(res);
+          return;
         }
         if (results.affectedRows == 0) {
           console.log(`Nothing is ended. ${no} is call number.`);
@@ -283,9 +283,9 @@ const execute: Executable = async function (app, conn) {
         if (treatError(err, res, "callCancel")) {
           return;
         }
-        if(Array.isArray(results)){
-            raise500(res);
-            return;
+        if (Array.isArray(results)) {
+          raise500(res);
+          return;
         }
         if (results.affectedRows == 0) {
           console.log(`Nothing is deleted. ${callNo} is call number.`);
@@ -310,10 +310,10 @@ const execute: Executable = async function (app, conn) {
   const postChangeCallStatus: RequestHandler = (req, res) => {
     try {
       let sql = "UPDATE `call` c SET c.`status` = ?  WHERE c.id = ?";
-      let callStatus : CallStatus = req.body.callStatus;
+      let callStatus: CallStatus = req.body.callStatus;
       let callNo = req.body.callNo;
-      let param = [statusTonumber[callStatus], callNo];
-      if (!chackStatusString(callStatus)) {
+      let param = [statusToNumber[callStatus], callNo];
+      if (!checkStatusString(callStatus)) {
         res.status(500).send({
           status: "error",
           errorMessage: "Status is not allowed string.",
@@ -321,10 +321,10 @@ const execute: Executable = async function (app, conn) {
         return;
       }
       conn.query(sql, param, async function (err, results, fields) {
-          if(Array.isArray(results)){
-              raise500(res);
-              return;
-          }
+        if (Array.isArray(results)) {
+          raise500(res);
+          return;
+        }
         if (results.affectedRows == 1) {
           res.status(200).send({
             status: "success",
@@ -373,5 +373,5 @@ const execute: Executable = async function (app, conn) {
     ],
     get: ["/call-status"],
   };
-}
+};
 export default execute;

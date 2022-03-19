@@ -4,7 +4,7 @@ import { Executable } from "../types/types";
 import { RequestHandler } from "express";
 
 const execute: Executable = async (app, conn) => {
-  const getrecordPositions: RequestHandler = (req, res) => {
+  const getRecordPositions: RequestHandler = (req, res) => {
     try {
       conn.query("SELECT * FROM record_position;", function (err, results) {
         if (err) throw err;
@@ -21,7 +21,7 @@ const execute: Executable = async (app, conn) => {
       });
     } catch (e) {
       console.error(e);
-      console.log("error occurred please see error log.");
+      console.log("error occurred. Please see the error log.");
       res
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });
@@ -29,8 +29,8 @@ const execute: Executable = async (app, conn) => {
   };
   let a = function () {};
 
-  app.get("/record-position", getrecordPositions);
-  app.get("/record-positions", getrecordPositions);
+  app.get("/record-position", getRecordPositions);
+  app.get("/record-positions", getRecordPositions);
 
   return {
     get: ["/record-position", "/record-positions"],

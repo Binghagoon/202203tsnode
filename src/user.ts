@@ -79,7 +79,7 @@ const execute: Executable = async function (app, conn) {
 
   const getDriverInfo: RequestHandler = (req, res) => {
     try {
-      let sql = "SELECT id, licence, carname FROM user_view WHERE `id`=?";
+      let sql = "SELECT id, license, carname FROM user_view WHERE `id`=?";
       let id = req.query.id;
       conn.query(sql, [id], function (err, results) {
         if (!Array.isArray(results)) return;
@@ -127,11 +127,11 @@ const execute: Executable = async function (app, conn) {
 
   const postUpdateDriverInfo: RequestHandler = (req, res) => {
     try {
-      let sql = "UPDATE driver_info SET licence = ?, name = ? WHERE `id` = ?";
+      let sql = "UPDATE driver_info SET license = ?, name = ? WHERE `id` = ?";
       let id = req.body.id;
-      let licence = req.body.licence;
+      let license = req.body.license;
       let name = req.body.carName;
-      let params = [licence, name, id];
+      let params = [license, name, id];
       if (noSufficientArgumentError(params, res)) {
         return;
       }

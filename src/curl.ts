@@ -1,10 +1,10 @@
 import {
-  CommendType,
+  CommandType,
   Curl,
-  SendKakaoMeessageOptions,
+  SendKakaoMessageOptions,
   TokenObject,
 } from "./../types/types.d";
-import commendObject from "./curlCommand.json";
+import commandObject from "./curlCommand.json";
 import { kakao_token as kakaoToken } from "./sensitive-value.json";
 import { exec } from "child_process";
 
@@ -17,7 +17,7 @@ const memoObject = {
   },
   button_title: "바로 확인",
 };
-const sendMessageTemplete = {
+const sendMessageTemplate = {
   object_type: "text",
   text: "호출이 들어왔습니다.\n좌석은 ${seatType}이고, 출발지는 ${departure}이고, 도착지는 ${arrival}입니다.\n 전화번호는 ${phoneAddress}입니다.",
   link: {
@@ -81,8 +81,8 @@ function departureArrivalReplace({
   arrival,
   phoneAddress,
   seatType,
-}: SendKakaoMeessageOptions) {
-  let template = Object.assign({}, sendMessageTemplete);
+}: SendKakaoMessageOptions) {
+  let template = Object.assign({}, sendMessageTemplate);
   template.text = template.text.replace(
     "${seatType}",
     seatType ? seatType : "미정"
@@ -92,31 +92,32 @@ function departureArrivalReplace({
   template.text = template.text.replace("${phoneAddress}", phoneAddress);
   return JSON.stringify(template);
 }
+
 /** If you send message you should fulfill option otherwise message is not sended. */
-const commend = async (
-  type: CommendType,
-  options?: SendKakaoMeessageOptions
+const command = async (
+  type: CommandType,
+  options?: SendKakaoMessageOptions
 ) => {
   let exec = async (templateObject: string | null, curl: Curl) =>
     execCommand(createCommand(templateObject, curl));
   if (type == "memo") {
-    return await exec(JSON.stringify(memoObject), commendObject.memo);
+    return await exec(JSON.stringify(memoObject), commandObject.memo);
   } else if (type == "friends") {
-    throw new Error("Not implemented") //TBD
+    throw new Error("Not implemented"); //TBD
   } else if (type == "getToken") {
-    return await exec(null, commendObject.getToken);
+    return await exec(null, commandObject.getToken);
   } else if (type == "sendMessage") {
     if (!options) {
       console.error("Options are omitted.");
-      console.log("Error occurred at commend at curl.ts.");
+      console.log("Error occurred at command at curl.ts.");
       console.log("Kakao message is not sended.");
       throw new Error("Message is not sended");
     }
     return await exec(
       departureArrivalReplace(options),
-      commendObject.sendMessage
+      commandObject.sendMessage
     );
   }
 };
 
-export { commend };
+export { command };

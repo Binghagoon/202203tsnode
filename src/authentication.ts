@@ -85,13 +85,13 @@ const execute: Executable = async function (app, conn) {
           [args.id]
         );
       } else if (type == "driver") {
-        sql = "INSERT INTO driver_info (id, licence, `name`) VALUES (?, ?, ?);";
+        sql = "INSERT INTO driver_info (id, license, `name`) VALUES (?, ?, ?);";
         updateUserResults = await connWithPromise(
           conn,
           "UPDATE `user` SET role = 2 WHERE id = ?",
           [args.id]
         );
-        params = [args.id, args.licence, args.carname];
+        params = [args.id, args.license, args.carname];
       } else if (type == "administrator") {
         //TBD
         return;
@@ -105,7 +105,7 @@ const execute: Executable = async function (app, conn) {
           console.log(err);
           res.status(500).send({
             status: "error",
-            errorMessage: "Error occurred when insert.",
+            errorMessage: "Error occurred while inserting.",
           });
           return;
         }
