@@ -2,7 +2,6 @@
 
 import { Executable } from "../types/types";
 import { Response, Request, RequestHandler } from "express";
-let getno = require("./get-id-from-username");
 
 const execute: Executable = async (app, conn) => {
   const locationInsert: RequestHandler = async (req, res) => {
