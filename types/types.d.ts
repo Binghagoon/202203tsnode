@@ -7,6 +7,7 @@ import {
   ResultSetHeader,
   Connection,
 } from "mysql2";
+export type HTTPError=[string, number];
 export type PathObject = {
   get?: string[];
   post?: string[];

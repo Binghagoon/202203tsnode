@@ -6,7 +6,7 @@ import {
   OkPacket,
   ResultSetHeader,
 } from "mysql2";
-import { CallStatus } from "../types/types";
+import { CallStatus, HTTPError } from "../types/types";
 import moment from "moment-timezone";
 
 const objectKeyRename = (
@@ -18,6 +18,78 @@ const objectKeyRename = (
   delete obj[originalName];
 };
 
+const isHTTPError = (e: unknown): e is HTTPError => {
+  if (Array.isArray(e)) {
+    return typeof e[0] == "string" && typeof e[1] == "number";
+  } else {
+    return false;
+  }
+};
+const isError = (x: any): x is Error => "message" in x;
+/**
+ * 
+ * @param res Express res
+ * @param callback Some function, function or Promise; async function
+ * @param args function's arguments
+ * @returns callback return value: any
+ */
+const catchError = async (
+  res: Response,
+  callback: Function | ((...args: any) => Promise<any> | any),
+  ...args: any[]
+) => {
+  try {
+    return await callback(...args);
+  } catch (e) {
+    let message: string, code: number, stack: string, errorObject: Error;
+    errorObject = new Error();
+    stack = errorObject.stack ? errorObject.stack : "Can't find stack.";
+    message = "Unknown error";
+    code = 500;
+    if (isHTTPError(e)) {
+      message = e[0];
+      code = e[1];
+    } else if (isError(e)) {
+      message = e.message;
+      code = 500;
+    } else if (typeof e == "string") {
+      message = e;
+      code = 500;
+    } else if (typeof e == "number") {
+      if (e == 400) {
+        message = "Bad request, in most cases argument is not sufficient.";
+      } else if (e >= 400 || e < 500) {
+        message = "Client Error";
+      }
+      if (e == 500) {
+        message = "Internal Server Error";
+      }
+      if (e > 500 || e < 600) {
+        message = "Other server Error";
+      }
+      code = e;
+    }
+    let seoulTime = moment().tz("Asia/Seoul").format();
+    console.error(
+      `-------Error Print
+      Time(in KST): ${seoulTime}
+      Error: ${message}
+      Code:${code}
+      Stack:${stack}
+      -------Error Print End`
+    );
+    res.status(code).send({ status: "error", errorMessage: message });
+    return null;
+  }
+};
+/**
+ * 
+ * @param err 
+ * @param res 
+ * @param location
+ * @returns
+ * @deprecated  
+ */
 const treatError = (
   err: QueryError | null,
   res: Response,
@@ -34,10 +106,20 @@ const treatError = (
   debugger;
   return 1;
 };
-const isError = (x: any): x is Error => {
-  return "message" in x;
-};
-const raise500 = (res: Response, reason?: string, error?: Error | any) => {
+/**
+ * 
+ * @param res 
+ * @param reason 
+ * @param error 
+ * @param code
+ * @deprecated 
+ */
+const raiseError = (
+  res: Response,
+  reason?: string,
+  error?: Error | any,
+  code?: number
+) => {
   console.log("Error occurred time is %s", moment().tz("Asia/Seoul").format());
   if (reason) console.log("Get an error because %s", reason);
   if (error) {
@@ -48,10 +130,21 @@ const raise500 = (res: Response, reason?: string, error?: Error | any) => {
     }
     console.error(error);
   }
-  res
-    .status(500)
-    .send({ status: "error", errorMessage: "Internal Server Error" });
+  if (!code) {
+    res
+      .status(500)
+      .send({ status: "error", errorMessage: "Internal Server Error" });
+  } else {
+    res.status(code).send({ status: "error", errorMessage: reason });
+  }
 };
+/**
+ * 
+ * @param res 
+ * @param callback 
+ * @returns 
+ * @deprecated
+ */
 //const raiseHTTPError(res:Response, code:number,option?:{reason?:string,}) //TBD
 const ifErrorRaise500 = async (
   res: Response,
@@ -60,7 +153,7 @@ const ifErrorRaise500 = async (
   try {
     return await callback();
   } catch (e) {
-    raise500(res, undefined, e);
+    raiseError(res, undefined, e);
   }
 };
 
@@ -74,13 +167,13 @@ const noSufficientArgumentError = (
     b = b || val == undefined;
   }
   if (b) {
-    if(res){
+    if (res) {
       res.send({
         status: "error",
         errorMessage: "not sufficient arguments.",
       });
       return true;
-    } else{
+    } else {
       throw "No sufficient arguments";
     }
   }
@@ -109,7 +202,7 @@ const OkPacketTypeGuard = (
     | RowDataPacket[][]
     | OkPacket[]
 ): results is OkPacket => {
-  return !Array.isArray(results) && ("affectedRow" in results);
+  return !Array.isArray(results) && "affectedRow" in results;
 };
 const connWithPromise = (
   conn: Connection,
@@ -178,7 +271,7 @@ export {
   noSufficientArgumentError,
   connWithPromise,
   getTimeStamp,
-  raise500,
+  raiseError as raise500,
   ifErrorRaise500 as raiseInternalServerError,
   ifErrorRaise500 as tryCatch,
   ifErrorRaise500,
