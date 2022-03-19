@@ -11,11 +11,12 @@ import {
   getPhoneAddress,
   ifErrorRaise500,
   raise500,
+  connWithPromise,
+  selectTypeGuard,
 } from "./base_module";
 import { sendKakaoMessage } from "./message";
 import { CallStatus, Executable } from "types/types";
 import { RequestHandler } from "express";
-import { ifError } from "assert";
 
 function checkStatusString(str: CallStatus) {
   try {
@@ -180,56 +181,57 @@ const execute: Executable = async function (app, conn) {
     }
   };
 
-  const postCallAccept: RequestHandler = (req, res) => {
-    try {
-      let sql =
-        "UPDATE `call` c SET driver_id = ?, c.`status` = 2  WHERE c.id = ?";
-      let driverid = req.body.driverid;
+  const postCallAccept: RequestHandler = (req, res) =>
+    ifErrorRaise500(res, async () => {
+      let sql = "SELECT status FROM call_view cv WHERE cv.id = ?";
       let callNo = req.body.callNo;
+      let results = await connWithPromise(conn, sql, [callNo]);
+      if (selectTypeGuard(results)) {
+        let status: CallStatus = results[0].status;
+        if (status != "waiting") {
+          res.status(500).send({
+            status: "error",
+            ErrorMessage: "You have selected not waiting call.",
+          });
+        }
+      } else {
+        throw "SQL return type mismatched. sql is " + sql;
+      }
+
+      sql = "UPDATE `call` c SET driver_id = ?, c.`status` = 2  WHERE c.id = ?";
+      let driverid = req.body.driverid;
       let params = [driverid, callNo];
 
       if (noSufficientArgumentError(params, res)) {
         return;
       }
-      conn.query(sql, params, function (err, results, fields) {
-        if (treatError(err, res, "callAccept")) {
-          return;
-        }
-        if (Array.isArray(results)) {
-          raise500(res);
-          return;
-        }
-        if (results.affectedRows == 0) {
-          console.log(`Nothing is accepted. ${callNo} is call number.`);
-          res.send({
-            status: "error",
-            errorMessage: "nothing is accepted.",
-          });
-          return;
-        }
-        let sql = "SELECT student_id FROM call_view WHERE call_id = ?";
-        conn.query(sql, [callNo], function (err, results, fields) {
-          if (!Array.isArray(results)) {
-            raise500(res);
-            return;
-          }
-          let result = results[0];
-          if (!("student_id" in result)) {
-            raise500(res);
-            return;
-          }
-          res.send({
-            studentid: result.student_id,
-          });
+      results = await connWithPromise(conn, sql, params);
+      if (Array.isArray(results)) {
+        throw "call results are not expected value.";
+      }
+
+      if (results.affectedRows == 0) {
+        console.log(`Nothing is accepted. ${callNo} is call number.`);
+        res.send({
+          status: "error",
+          errorMessage: "nothing is accepted.",
         });
+        return;
+      }
+      sql = "SELECT student_id FROM call_view WHERE call_id = ?";
+      results = await connWithPromise(conn, sql, [callNo]);
+      if (!Array.isArray(results)) {
+        throw "call_view results are not expected value.";
+      }
+
+      let result = results[0];
+      if (!("student_id" in result)) {
+        throw "results are not expected value.";
+      }
+      res.send({
+        studentid: result.student_id,
       });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+    });
 
   const postCallEnd: RequestHandler = (req, res) => {
     try {
