@@ -1,3 +1,4 @@
 node_modules
 sensitive-value.json
 build
+.vscode
