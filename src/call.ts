@@ -1,4 +1,4 @@
-// It's refered from 202109-node/call.js at fa5fc60f884d1550739ee39b64f395a4136fd0c0.
+// It's referred from 202109-node/call.js at fa5fc60f884d1550739ee39b64f395a4136fd0c0.
 
 //import getid from "./get-id-from-username";
 import {
@@ -66,7 +66,7 @@ const execute: Executable = async function (app, conn) {
           phoneAddress: phoneAddress,
         });
       } catch (e) {
-        console.log("Error rised when send kakao message.");
+        console.log("Error occurred when send kakao message.");
         console.log(e);
         debugger;
       }

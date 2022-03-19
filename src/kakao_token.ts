@@ -35,7 +35,7 @@ export const writeToken = (data: TokenObject): void => {
     stringData = JSON.stringify(newSensitiveValue, null, 2);
   } catch (e) {
     console.error(e);
-    console.log("error occured please see error log.");
+    console.log("error occurred please see error log.");
     return;
   }
   fs.writeFile("./sensitive-value.json", stringData, (err) => {
@@ -80,7 +80,7 @@ const doRefreshToken = async (refresh_token?: string) => {
     );
     return;
   }
-  let data = await curl.command(null, curl.commandObject.getToken);
+  let data = await curl.commend(null, curl.commendObject.getToken);
   try {
     if (data.error) {
       console.log("Error occurred.");
@@ -120,7 +120,7 @@ const execute: Executable = async (app, conn) => {
       });
     }
   };
-  const postRefrashToken: RequestHandler = async (req, res) => {
+  const postRefreshToken: RequestHandler = async (req, res) => {
     try {
       await doRefreshToken();
       console.log("Token has been refreshed successfully.");
@@ -129,8 +129,8 @@ const execute: Executable = async (app, conn) => {
       });
       return;
     } catch (e) {
-      console.log("Error occured while refreshing token.");
-      console.error("Error occured while refreshing token.");
+      console.log("Error occurred while refreshing token.");
+      console.error("Error occurred while refreshing token.");
       console.error(e);
       res.status(500).send({
         status: "error",
@@ -142,6 +142,6 @@ const execute: Executable = async (app, conn) => {
   verifyToken();
 
   app.post("/set-token", postSetToken);
-  app.post("/refresh-token", postRefrashToken);
+  app.post("/refresh-token", postRefreshToken);
 };
 export default execute;

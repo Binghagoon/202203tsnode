@@ -44,7 +44,7 @@ Promise.all(promise)
   })
   .catch(function (error) {
     debugger;
-    console.log("Error occured.");
+    console.log("Error occurred.");
   });
 
 app.get("/", function (req, res) {
@@ -57,7 +57,7 @@ app.get("/", function (req, res) {
     );
       } catch (e) {
       console.error(e);
-      console.log("error occured please see error log.");
+      console.log("error occurred please see error log.");
     res
       .status(500)
       .send({ status: "error", errorMessage: "Internal Server Error" });
@@ -69,7 +69,7 @@ app.post("/post-test", async function (req, res) {
     res.send(`Hello`);
       } catch (e) {
       console.error(e);
-      console.log("error occured please see error log.");
+      console.log("error occurred please see error log.");
     res
       .status(500)
       .send({ status: "error", errorMessage: "Internal Server Error" });
@@ -79,7 +79,7 @@ app.get("/throw-error", async function (req, res) {
   try {
       } catch (e) {
       console.error(e);
-      console.log("error occured please see error log.");
+      console.log("error occurred please see error log.");
     res
       .status(500)
       .send({ status: "error", errorMessage: "Internal Server Error" });

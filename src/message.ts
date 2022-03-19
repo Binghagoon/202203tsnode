@@ -1,4 +1,4 @@
-// It's refered from 202109-node/message.js at dd4aa05e8fa024d46cfa2849156db725098af7ed.
+// It's referred from 202109-node/message.js at dd4aa05e8fa024d46cfa2849156db725098af7ed.
 
 let accessToken: String, refrashToken: String;
 import { RequestHandler } from "express";

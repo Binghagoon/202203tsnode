@@ -1,4 +1,4 @@
-// It's refered from 202009-node/record-positions.js at 83a8d7c1e2df81a7fa79cbf1c03014547b0f2de0
+// It's referred from 202009-node/record-positions.js at 83a8d7c1e2df81a7fa79cbf1c03014547b0f2de0
 
 import { Executable } from "../types/types";
 import { RequestHandler } from "express";
@@ -21,7 +21,7 @@ const execute: Executable = async (app, conn) => {
       });
     } catch (e) {
       console.error(e);
-      console.log("error occured please see error log.");
+      console.log("error occurred please see error log.");
       res
         .status(500)
         .send({ status: "error", errorMessage: "Internal Server Error" });

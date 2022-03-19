@@ -108,7 +108,7 @@ const commend = async (
   } else if (type == "sendMessage") {
     if (!options) {
       console.error("Options are omitted.");
-      console.log("Error occured at commend at curl.ts.");
+      console.log("Error occurred at commend at curl.ts.");
       console.log("Kakao message is not sended.");
       throw new Error("Message is not sended");
     }

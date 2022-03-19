@@ -105,7 +105,7 @@ const execute: Executable = async function (app, conn) {
           console.log(err);
           res.status(500).send({
             status: "error",
-            errorMessage: "Error rised when insert.",
+            errorMessage: "Error occurred when insert.",
           });
           return;
         }
