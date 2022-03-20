@@ -5,152 +5,120 @@ import express, {
   Express,
   RequestHandler,
 } from "express";
-import { QueryError, Connection } from "mysql2";
+import Connection from "mysql2/typings/mysql/lib/Connection";
 import { Executable, PathObject } from "../types/types";
 import {
   objectKeyRename,
-  treatError,
   noSufficientArgumentError,
+  connWithPromise,
+  selectTypeGuard,
+  catchError,
+  OkPacketTypeGuard,
 } from "./base_module";
 
 const execute: Executable = async function (app, conn) {
-  const getId: RequestHandler = (req, res) => {
-    try {
-      let sql = "SELECT `id` FROM `user` WHERE username = ?";
-      let username = req.query.username;
-      conn.query(sql, [username], function (err, results) {
-        if (!Array.isArray(results)) return;
-        let result = results[0];
-        objectKeyRename(result, "no", "id");
-        res.send(results[0]);
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
-
-  const getUserInfo: RequestHandler = (req, res) => {
-    try {
-      let sql = "SELECT *  FROM user_view WHERE id = ?";
-      let id = req.query.id;
-      if (noSufficientArgumentError([id], res)) {
-        return;
+  const getId: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql = "SELECT `id` FROM `user` WHERE username = ?";
+      const username = req.query.username;
+      noSufficientArgumentError([username]);
+      const results = await connWithPromise(conn, sql, [username]);
+      if (!selectTypeGuard(results)) {
+        throw "Type mismatched";
       }
-      conn.query(sql, [id], function (err, results) {
-        if (!Array.isArray(results)) return;
-        if (treatError(err, res)) {
-          return;
-        }
-        let result = results[0];
-        res.send(result);
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+      let result = results[0];
+      res.send(result);
+    });
 
-  const getStudentInfo: RequestHandler = (req, res) => {
-    try {
-      let sql = "SELECT id, student_number, major FROM user_view WHERE `id`=?";
-      let id = req.query.id;
-      debugger;
-      conn.query(sql, [id], function (err, results) {
-        if (!Array.isArray(results)) return;
-        if (treatError(err, res)) {
-          return;
-        }
-        let result = results[0];
-        objectKeyRename(result, "student_number", "studentNumber");
+  const getUserInfo: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql = "SELECT *  FROM user_view WHERE id = ?";
+      const id = req.query.id;
+      noSufficientArgumentError([id]);
+      const results = await connWithPromise(conn, sql, [id]);
+      if (selectTypeGuard(results)) {
+        const result = results[0];
         res.send(result);
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+      } else {
+        throw "Type mismatched";
+      }
+    });
 
-  const getDriverInfo: RequestHandler = (req, res) => {
-    try {
-      let sql = "SELECT id, license, carname FROM user_view WHERE `id`=?";
-      let id = req.query.id;
-      conn.query(sql, [id], function (err, results) {
-        if (!Array.isArray(results)) return;
-        if (treatError(err, res)) {
-          return;
-        }
-        let result = results[0];
-        res.send(result);
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+  const getStudentInfo: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql =
+        "SELECT id, student_number, major FROM user_view WHERE `id`=?";
+      const id = req.query.id;
+      noSufficientArgumentError([id]);
+      const results = await connWithPromise(conn, sql, [id]);
+      if (!selectTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      const result = results[0];
+      objectKeyRename(result, "student_number", "studentNumber");
+      res.send(result);
+    });
 
-  const postUpdateStudentInfo: RequestHandler = (req, res) => {
-    try {
-      let sql =
+  const getDriverInfo: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql = "SELECT id, license, carname FROM user_view WHERE `id`=?";
+      const id = req.query.id;
+      noSufficientArgumentError([id]);
+      const results = await connWithPromise(conn, sql, [id]);
+      if (!selectTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      const result = results[0];
+      res.send(result);
+    });
+
+  const postUpdateStudentInfo: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql =
         "UPDATE student_info SET student_number = ?, major = ? WHERE `id` = ?";
-      let id = req.body.id;
-      let studentNumber = req.body.studentNumber;
-      let major = req.body.major;
-      let params = [studentNumber, major, id];
-      if (noSufficientArgumentError(params, res)) {
-        return;
+      const id = req.body.id;
+      const studentNumber = req.body.studentNumber;
+      const major = req.body.major;
+      const params = [studentNumber, major, id];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) {
+        throw "Type mismatched";
       }
-      conn.query(sql, params, function (err, results) {
-        if (!Array.isArray(results)) return;
-        if (treatError(err, res)) {
-          return;
-        }
+      if (results.affectedRows == 1) {
         res.send({
           status: "success",
         });
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
-
-  const postUpdateDriverInfo: RequestHandler = (req, res) => {
-    try {
-      let sql = "UPDATE driver_info SET license = ?, name = ? WHERE `id` = ?";
-      let id = req.body.id;
-      let license = req.body.license;
-      let name = req.body.carName;
-      let params = [license, name, id];
-      if (noSufficientArgumentError(params, res)) {
-        return;
+      } else {
+        res.send({
+          status: "error",
+          errorMassage: "Not affected",
+        });
       }
-      conn.query(sql, params, function (err, results) {
-        if (!Array.isArray(results)) return;
-        if (treatError(err, res)) {
-          return;
-        }
+    });
+  const postUpdateDriverInfo: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql = "UPDATE driver_info SET license = ?, name = ? WHERE `id` = ?";
+      const id = req.body.id;
+      const license = req.body.license;
+      const name = req.body.carName;
+      const params = [license, name, id];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      if (results.affectedRows == 1) {
         res.send({
           status: "success",
         });
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+      } else {
+        res.send({
+          status: "error",
+          errorMassage: "Not affected",
+        });
+      }
+    });
 
   app.get("/get-id", getId);
   app.get("/get-user-info", getUserInfo);
