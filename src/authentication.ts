@@ -4,76 +4,64 @@ import {
   noSufficientArgumentError,
   treatError,
   connWithPromise,
+  catchError,
+  selectTypeGuard,
+  OkPacketTypeGuard,
 } from "./base_module";
 
 const execute: Executable = async function (app, conn) {
-  const getSignIn: RequestHandler = async (req, res) => {
-    try {
-      let sql =
+  const getSignIn: RequestHandler = async (req, res) =>
+    catchError(res, async () => {
+      const sql =
         "SELECT u.id, rl.role FROM  `user` u LEFT OUTER JOIN role_list rl ON u.role = rl.id WHERE username = ? AND (pw IS NULL OR  pw = ?)";
-      let arg = req.query;
-      let params = [arg.username, arg.pw];
+      const arg = req.query;
+      const params = [arg.username, arg.pw];
       if (noSufficientArgumentError(params, res)) {
         return;
       }
-      conn.query(sql, params, function (err, results: any[], fields) {
-        if (treatError(err, res, "signIn")) {
-          return;
-        } else if (results.length == 0) {
-          res.status(400).send({ status: "fail" });
-        } else if (results[0]["role"] == null) {
-          res.status(401).send({ status: "notAllowed" });
-        } else {
-          let result = results[0];
-          res.status(200).send({
-            role: result.role,
-            id: result.no,
-          });
-        }
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
-
-  const postSignUp: RequestHandler = async (req, res) => {
-    try {
-      //POST
-      let sql =
-        "INSERT INTO user (realname, username, email, phone) VALUES (?, ?, ?, ?);";
-      let arg = req.body;
-      let params = [arg.realname, arg.username, arg.email, arg.phone];
-      if (noSufficientArgumentError(params, res)) {
-        return;
+      const results = await connWithPromise(conn, sql, params);
+      if (!selectTypeGuard(results)) {
+        throw "Type mismatched";
       }
-      console.log("Sign up from" + arg.username);
-      conn.query(sql, params, function (err, results, fields) {
-        if (treatError(err, res, "signUp")) {
-          return;
-        }
-        console.log("Registered.");
+      if (results.length == 0) {
+        res.status(400).send({ status: "fail" });
+      } else if (results[0]["role"] == null) {
+        res.status(401).send({ status: "notAllowed" });
+      } else {
+        let result = results[0];
         res.status(200).send({
-          status: "success",
+          role: result.role,
+          id: result.no,
         });
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+      }
+    });
 
-  const putSignUpAllow: RequestHandler = async (req, res) => {
-    try {
-      let args = req.body;
-      let type = args.type;
-      let id = args.id;
+  const postSignUp: RequestHandler = async (req, res) =>
+    catchError(res, async () => {
+      //POST
+      const sql =
+        "INSERT INTO user (realname, username, email, phone) VALUES (?, ?, ?, ?);";
+      const arg = req.body;
+      const params = [arg.realname, arg.username, arg.email, arg.phone];
+      noSufficientArgumentError(params);
+      console.log("Sign up from" + arg.username);
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      console.log("Registered.");
+      res.status(200).send({
+        status: "success",
+      });
+    });
+
+  const putSignUpAllow: RequestHandler = async (req, res) =>
+    catchError(res, async () => {
+      const args = req.body;
+      const type = args.type;
+      const id = args.id;
       let sql = "",
-        params,
+        params: any[] = [],
         updateUserResults;
       if (type == "student") {
         sql =
@@ -96,36 +84,30 @@ const execute: Executable = async function (app, conn) {
         //TBD
         return;
       }
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) {
+        return;
+      }
+      if (results.affectedRows == 1) {
+        res.send({
+          status: "success",
+        });
+      } else {
+        res.send({
+          status: "error",
+          errorMessage: "Operation is not affected.",
+        });
+      }
+    });
+  app.get("/sign-in", getSignIn);
+  app.post("/sign-up", postSignUp);
+  app.put("/sign-up-allow", putSignUpAllow);
+  app.post("/sign-up-allow", putSignUpAllow);
 
-      conn.query(sql, params, async function (err, results, fields) {
-        if (Array.isArray(results)) {
-          return;
-        }
-        if (err) {
-          console.log(err);
-          res.status(500).send({
-            status: "error",
-            errorMessage: "Error occurred while inserting.",
-          });
-          return;
-        }
-        if (results.affectedRows == 1) {
-          res.send({
-            status: "success",
-          });
-        } else {
-          res.send({
-            status: "error",
-            errorMessage: "Operation is not affected.",
-          });
-        }
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
+  return {
+    put: ["/sign-up-allow"],
+    get: ["/sign-in"],
+    post: ["/sign-up", "/sign-up-allow"],
   };
 };
 export default execute;

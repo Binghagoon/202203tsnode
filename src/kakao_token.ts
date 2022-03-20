@@ -10,7 +10,7 @@ import { QueryError, Connection } from "mysql2";
 import * as sensitiveValue from "./sensitive-value.json";
 import { kakao_token as kakaoToken } from "./sensitive-value.json";
 import * as fs from "fs";
-import { getTimeStamp } from "./base_module";
+import { catchError, getTimeStamp } from "./base_module";
 import * as curl from "./curl";
 
 let refreshToken: string, accessToken: string;
@@ -106,8 +106,8 @@ const doRefreshToken = async (refresh_token?: string) => {
 };
 
 const execute: Executable = async (app, conn) => {
-  const postSetToken: RequestHandler = async (req, res) => {
-    try {
+  const postSetToken: RequestHandler = (req, res) =>
+    catchError(res, async () => {
       accessToken = req.body["access_token"];
       refreshToken = req.body["refresh_token"];
       console.log(
@@ -119,32 +119,15 @@ const execute: Executable = async (app, conn) => {
       res.status(200).send({
         status: "success",
       });
-    } catch (e) {
-      console.log(e);
-      res.status(500).send({
-        status: "error",
-        errorMessage: "Internal Server Error",
-      });
-    }
-  };
-  const postRefreshToken: RequestHandler = async (req, res) => {
-    try {
+    });
+  const postRefreshToken: RequestHandler = (req, res) =>
+    catchError(res, async () => {
       await doRefreshToken();
       console.log("Token has been refreshed successfully.");
       res.send({
         status: "success",
       });
-      return;
-    } catch (e) {
-      console.log("Error occurred while refreshing token.");
-      console.error("Error occurred while refreshing token.");
-      console.error(e);
-      res.status(500).send({
-        status: "error",
-      });
-      return;
-    }
-  };
+    });
 
   verifyToken();
 

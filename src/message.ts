@@ -3,6 +3,7 @@
 let accessToken: String, refreshToken: String;
 import { RequestHandler } from "express";
 import { Executable, SendKakaoMessageOptions } from "types/types";
+import { catchError } from "./base_module";
 import { command } from "./curl";
 
 async function friendList() {
@@ -10,8 +11,8 @@ async function friendList() {
 }
 
 const execute: Executable = async function (app, conn) {
-  const getFriendList: RequestHandler = async (req, res) => {
-    try {
+  const getFriendList: RequestHandler = async (req, res) =>
+    catchError(res, async () => {
       let list;
       try {
         list = friendList();
@@ -19,15 +20,9 @@ const execute: Executable = async function (app, conn) {
         debugger;
       }
       res.send(list);
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
-  const sendMessage: RequestHandler = async (req, res) => {
-    try {
+    });
+  const sendMessage: RequestHandler = async (req, res) =>
+    catchError(res, async () => {
       await sendKakaoMessage({
         departure: "서울",
         arrival: "부산",
@@ -35,14 +30,7 @@ const execute: Executable = async function (app, conn) {
         seatType: "테스트",
       });
       res.send({ status: "success" });
-    } catch (e) {
-      console.log(e);
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+    });
 
   app.get("/friend-list", getFriendList);
   app.post("/send-message", sendMessage);

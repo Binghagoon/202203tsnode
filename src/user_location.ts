@@ -2,25 +2,30 @@
 
 import { Executable } from "../types/types";
 import { Response, Request, RequestHandler } from "express";
+import {
+  catchError,
+  connWithPromise,
+  noSufficientArgumentError,
+  OkPacketTypeGuard,
+  selectTypeGuard,
+} from "./base_module";
 
 const execute: Executable = async (app, conn) => {
-  const locationInsert: RequestHandler = async (req, res) => {
-    try {
-      let sql =
+  const locationInsert: RequestHandler = async (req, res) =>
+    catchError(res, async () => {
+      const sql =
         "INSERT INTO user_location (id, latitude, longitude) VALUES (?, ?, ?);";
-      let no = req.body.id;
-      let name = req.body.name;
-      let latitude = req.body.latitude;
-      let longitude = req.body.longitude;
-      let params = [no, latitude, longitude];
-      conn.query(sql, params, function (err, results) {
-        if (err) {
-          res.send({
-            status: "error",
-            errorMessage: "Duplicate user's location. use location-update.",
-          });
-          return;
-        }
+      const no = req.body.id;
+      const name = req.body.name;
+      const latitude = req.body.latitude;
+      const longitude = req.body.longitude;
+      const params = [no, latitude, longitude];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      if (results.affectedRows == 1) {
         res.send({
           status: "success",
         });
@@ -30,106 +35,58 @@ const execute: Executable = async (app, conn) => {
           latitude,
           longitude
         );
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+      } else throw "Not inserted.";
+    });
 
-  const locationUpdate: RequestHandler = async (req, res) => {
-    try {
-      let sql =
+  const locationUpdate: RequestHandler = async (req, res) =>
+    catchError(res, async () => {
+      const sql =
         "UPDATE user_location SET latitude = ?, longitude = ? WHERE id = ?;";
-      let no = req.body.id;
-      let latitude = req.body.latitude;
-      let longitude = req.body.longitude;
-      let params = [latitude, longitude, no];
-      conn.query(sql, params, function (err, results) {
-        if (err) {
-          res.send({
-            status: "error",
-            errorMessage: err.stack,
-          });
-          return;
-        }
-        res.send({
-          status: "success",
-        });
+      const no = req.body.id;
+      const latitude = req.body.latitude;
+      const longitude = req.body.longitude;
+      const params = [latitude, longitude, no];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) throw "Type mismatched";
+      if (results.affectedRows != 1) throw "Not affected";
+      res.send({
+        status: "success",
       });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+    });
 
-  const locationDelete: RequestHandler = async (req, res) => {
-    try {
-      let sql = "DELETE FROM user_location WHERE id = ?;";
-      let id = req.body.id;
-      let params = [id];
-      conn.query(sql, params, function (err, results) {
-        if (err) {
-          res.send({
-            status: "error",
-            errorMessage: err.stack,
-          });
-          return;
-        }
-        if (Array.isArray(results)) {
-          console.error("results are Array. Error on locationDelete.");
-          res
-            .status(500)
-            .send({ status: "error", errorMessage: "Internal Server Error" });
-          return;
-        }
-        if (results.affectedRows == 0) {
-          res.send({
-            status: "error",
-            errorMassage: "value does not existing.",
-          });
-          return;
-        }
+  const locationDelete: RequestHandler = async (req, res) =>
+    catchError(res, async () => {
+      const sql = "DELETE FROM user_location WHERE id = ?;";
+      const id = req.body.id;
+      const params = [id];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) throw "Type mismatched";
+      if (results.affectedRows == 0) {
         res.send({
-          status: "success",
+          status: "error",
+          errorMassage: "value does not existing.",
         });
-        console.log("someone is untraced.");
+        return;
+      }
+      res.send({
+        status: "success",
       });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+      console.log("someone is untraced.");
+    });
 
-  const getLocation: RequestHandler = async (req, res) => {
-    try {
-      let sql = "SELECT latitude, longitude FROM user_location WHERE id = ?";
-      let no = req.query.id;
-      conn.query(sql, [no], function (err, results) {
-        if (!Array.isArray(results)) {
-          console.error(
-            "results are not array. Error has occurred on getLocation."
-          );
-          res
-            .status(500)
-            .send({ status: "error", errorMessage: "Internal Server Error" });
-          return;
-        }
-        res.send(results[0]);
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+  const getLocation: RequestHandler = async (req, res) =>
+    catchError(res, async () => {
+      const sql = "SELECT latitude, longitude FROM user_location WHERE id = ?";
+      const no = req.query.id;
+      const params = [no];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!selectTypeGuard(results)) throw "Type mismatched";
+      res.send(results[0]);
+      conn.query(sql, [no], function (err, results) {});
+    });
 
   app.post("/my-location-insert", locationInsert); //will be deprecated
   app.post("/location-insert", locationInsert);

@@ -2,17 +2,16 @@
 
 //import getid from "./get-id-from-username";
 import {
-  treatError,
   objectKeyRename,
   noSufficientArgumentError,
   allowCallStatus,
   statusToNumber,
   getPositionName,
   getPhoneAddress,
-  ifErrorRaise500,
-  raise500,
   connWithPromise,
   selectTypeGuard,
+  catchError,
+  OkPacketTypeGuard,
 } from "./base_module";
 import { sendKakaoMessage } from "./message";
 import { CallStatus, Executable } from "types/types";
@@ -32,16 +31,15 @@ function checkStatusString(str: CallStatus) {
 }
 
 const execute: Executable = async function (app, conn) {
-  const postCallRequest: RequestHandler = async (req, res) => {
-    try {
-      //POST
-      let sql =
+  const postCallRequest: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql =
         "INSERT INTO `call` (student_id, departure_id, arrival_id, is_wheelchair_seat)" +
         "VALUES(?, ?, ?, ?);";
-      let no = req.body.id;
+      const no = req.body.id;
       //let no = await getid.execute(conn, id);
-      let departureNo = req.body.departureNo;
-      let arrivalNo = req.body.arrivalNo;
+      const departureNo = req.body.departureNo;
+      const arrivalNo = req.body.arrivalNo;
       let isWheelchairSeat;
       try {
         isWheelchairSeat = parseInt(req.body.isWheelchairSeat);
@@ -51,12 +49,9 @@ const execute: Executable = async function (app, conn) {
           status: "error",
           errorMessage: "isWheelchairSeat can not parse to Integer.",
         });
-        return;
       }
-      let params = [no, departureNo, arrivalNo, isWheelchairSeat];
-      if (noSufficientArgumentError(params, res)) {
-        return;
-      }
+      const params = [no, departureNo, arrivalNo, isWheelchairSeat];
+      noSufficientArgumentError(params);
       try {
         let departureName = await getPositionName(departureNo, conn);
         let arrivalName = await getPositionName(arrivalNo, conn);
@@ -69,100 +64,59 @@ const execute: Executable = async function (app, conn) {
       } catch (e) {
         console.log("Error occurred while sending kakao message.");
         console.log(e);
-        debugger;
       }
-      conn.query(sql, params, (err, results, fields) => {
-        if (Array.isArray(results)) {
-          raise500(res);
-          return;
-        }
-        if (treatError(err, res, "callRequest")) {
-          return;
-        }
-        let result = {
-          callNo: results.insertId,
-        };
-        if (results.affectedRows != 1) {
-          console.log("There is some problem near on call.js:77");
-          res.send({
-            status: "error",
-            errorMessage: "Affected multiple rows.",
-          });
-        }
-        res.send(result);
-        console.log(
-          "%s has called request! callNo is %s",
-          no,
-          results.insertId
-        );
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      const result = {
+        callNo: results.insertId,
+      };
+      if (results.affectedRows != 1) {
+        throw "Multiple line affected.";
+      }
+      res.send(result);
+      console.log("%s has called request! callNo is %s", no, results.insertId);
+    });
 
-  const getCallStatus: RequestHandler = (req, res) => {
-    try {
-      //GET
-      let sql = "SELECT * FROM call_view WHERE call_id = ?";
-      let no = req.query.callNo;
-      let params = [no];
-      if (noSufficientArgumentError(params, res)) {
+  const getCallStatus: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql = "SELECT * FROM call_view WHERE call_id = ?";
+      const no = req.query.callNo;
+      const params = [no];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!selectTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      if (results[0] == undefined) {
+        res.send({
+          status: "error",
+          message: "There is no such call.",
+        });
         return;
       }
-      conn.query(sql, params, function (err, results, fields) {
-        if (treatError(err, res, "callStatus")) {
-          raise500(res);
-          return;
-        }
-        if (!Array.isArray(results)) {
-          raise500(res);
-          return;
-        }
-        if (results[0] == undefined) {
-          res.send({
-            status: "error",
-            message: "There is no such call.",
-          });
-          return;
-        }
-        ifErrorRaise500(res, () => {
-          let result: any = results[0];
-          let success = result.driver_id != undefined;
-          let driverid = result.driver_id;
-          let callStatus = result.status;
+      let result: any = results[0];
+      let success = result.driver_id != undefined;
+      let driverid = result.driver_id;
+      let callStatus = result.status;
 
-          res.send({
-            callSuccess: success,
-            driverid: driverid,
-            callStatus: callStatus,
-          });
-        });
+      res.send({
+        callSuccess: success,
+        driverid: driverid,
+        callStatus: callStatus,
       });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+    });
 
-  const getNoDriverCall: RequestHandler = (req, res) => {
-    try {
+  const getNoDriverCall: RequestHandler = (req, res) =>
+    catchError(res, async () => {
       let sql = "SELECT * FROM call_view WHERE status = 'waiting'";
-      conn.query(sql, function (err, results) {
-        if (treatError(err, res, "noDriverCall")) {
-          raise500(res);
-          return;
-        }
-        if (!Array.isArray(results)) {
-          raise500(res);
-          return;
-        }
-        results.map(function (value) {
+      const results = await connWithPromise(conn, sql, []);
+      if (!selectTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      try {
+        const renamingResults = results.map(function (value) {
           objectKeyRename(value, "call_id", "callNo");
           objectKeyRename(value, "student_name", "studentName");
           objectKeyRename(value, "student_id", "studentid");
@@ -171,18 +125,13 @@ const execute: Executable = async function (app, conn) {
           objectKeyRename(value, "student_phone", "phoneNumber");
           objectKeyRename(value, "is_wheelchair_seat", "isWheelchairSeat");
         });
-        res.send(results);
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
-
+        res.send(renamingResults);
+      } catch (e) {
+        throw "Error occurred renaming";
+      }
+    });
   const postCallAccept: RequestHandler = (req, res) =>
-    ifErrorRaise500(res, async () => {
+    catchError(res, async () => {
       let sql = "SELECT status FROM call_view cv WHERE cv.id = ?";
       let callNo = req.body.callNo;
       let results = await connWithPromise(conn, sql, [callNo]);
@@ -201,10 +150,8 @@ const execute: Executable = async function (app, conn) {
       sql = "UPDATE `call` c SET driver_id = ?, c.`status` = 2  WHERE c.id = ?";
       let driverid = req.body.driverid;
       let params = [driverid, callNo];
+      noSufficientArgumentError(params);
 
-      if (noSufficientArgumentError(params, res)) {
-        return;
-      }
       results = await connWithPromise(conn, sql, params);
       if (Array.isArray(results)) {
         throw "call results are not expected value.";
@@ -219,9 +166,10 @@ const execute: Executable = async function (app, conn) {
         return;
       }
       sql = "SELECT student_id FROM call_view WHERE call_id = ?";
+      noSufficientArgumentError([callNo]);
       results = await connWithPromise(conn, sql, [callNo]);
-      if (!Array.isArray(results)) {
-        throw "call_view results are not expected value.";
+      if (!selectTypeGuard(results)) {
+        throw "Type mismatched";
       }
 
       let result = results[0];
@@ -233,88 +181,59 @@ const execute: Executable = async function (app, conn) {
       });
     });
 
-  const postCallEnd: RequestHandler = (req, res) => {
-    try {
-      let sql = "UPDATE `call` c SET c.`status` = 4  WHERE c.id = ?";
-      let callNo = req.body.callNo;
-      let no = callNo;
-      let params = [no];
-      if (noSufficientArgumentError(params, res)) {
+  const postCallEnd: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql = "UPDATE `call` c SET c.`status` = 4  WHERE c.id = ?";
+      const no = req.body.callNo;
+      const params = [no];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      if (results.affectedRows == 0) {
+        console.log(`Nothing is ended. ${no} is call number.`);
+        res.send({
+          status: "error",
+          errorMessage: "nothing is ended.",
+        });
         return;
       }
-      conn.query(sql, [no], function (err, results, fields) {
-        if (treatError(err, res, "callEnd")) {
-          raise500(res);
-          return;
-        }
-        if (Array.isArray(results)) {
-          raise500(res);
-          return;
-        }
-        if (results.affectedRows == 0) {
-          console.log(`Nothing is ended. ${no} is call number.`);
-          res.send({
-            status: "error",
-            errorMessage: "nothing is ended.",
-          });
-          return;
-        }
-        console.log(`Call of number ${no} is ended successfully.`);
-        res.send({
-          status: "success",
-        });
+      console.log(`Call of number ${no} is ended successfully.`);
+      res.send({
+        status: "success",
       });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+    });
 
-  const postCallCancel: RequestHandler = (req, res) => {
-    try {
-      //POST
-      let sql = "UPDATE `call` c SET c.`status` = 1  WHERE c.id = ?";
-      let callNo = req.body.callNo;
-      let params = [callNo];
-      if (noSufficientArgumentError(params, res)) {
+  const postCallCancel: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql = "UPDATE `call` c SET c.`status` = 1  WHERE c.id = ?";
+      const callNo = req.body.callNo;
+      const params = [callNo];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      if (results.affectedRows == 0) {
+        console.log(`Nothing is deleted. ${callNo} is call number.`);
+        res.send({
+          status: "error",
+          errorMessage: "nothing is deleted.",
+        });
         return;
       }
-      conn.query(sql, params, function (err, results, fields) {
-        if (treatError(err, res, "callCancel")) {
-          return;
-        }
-        if (Array.isArray(results)) {
-          raise500(res);
-          return;
-        }
-        if (results.affectedRows == 0) {
-          console.log(`Nothing is deleted. ${callNo} is call number.`);
-          res.send({
-            status: "error",
-            errorMessage: "nothing is deleted.",
-          });
-          return;
-        }
-        console.log(`Call of number ${callNo} is deleted.`);
-        res.send({
-          status: "success",
-        });
+      console.log(`Call of number ${callNo} is deleted.`);
+      res.send({
+        status: "success",
       });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
-  const postChangeCallStatus: RequestHandler = (req, res) => {
-    try {
-      let sql = "UPDATE `call` c SET c.`status` = ?  WHERE c.id = ?";
-      let callStatus: CallStatus = req.body.callStatus;
-      let callNo = req.body.callNo;
-      let param = [statusToNumber[callStatus], callNo];
+    });
+  const postChangeCallStatus: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql = "UPDATE `call` c SET c.`status` = ?  WHERE c.id = ?";
+      const callStatus: CallStatus = req.body.callStatus;
+      const callNo = req.body.callNo;
+      const params = [statusToNumber[callStatus], callNo];
       if (!checkStatusString(callStatus)) {
         res.status(500).send({
           status: "error",
@@ -322,35 +241,27 @@ const execute: Executable = async function (app, conn) {
         });
         return;
       }
-      conn.query(sql, param, async function (err, results, fields) {
-        if (Array.isArray(results)) {
-          raise500(res);
-          return;
-        }
-        if (results.affectedRows == 1) {
-          res.status(200).send({
-            status: "success",
-          });
-        } else if (results.affectedRows > 1) {
-          res.status(200).send({
-            status: "error",
-            errorMessage:
-              "Affected multiple lines. Please note server administrator.",
-          });
-        } else if (results.affectedRows == 0) {
-          res.status(200).send({
-            status: "error",
-            errorMessage: "Not affected. Please use right callNo.",
-          });
-        }
-      });
-    } catch (e) {
-      console.log(e);
-      res
-        .status(500)
-        .send({ status: "error", errorMessage: "Internal Server Error" });
-    }
-  };
+      const results = await connWithPromise(conn, sql, params);
+      if (!OkPacketTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      if (results.affectedRows == 1) {
+        res.status(200).send({
+          status: "success",
+        });
+      } else if (results.affectedRows > 1) {
+        res.status(200).send({
+          status: "error",
+          errorMessage:
+            "Affected multiple lines. Please note server administrator.",
+        });
+      } else if (results.affectedRows == 0) {
+        res.status(200).send({
+          status: "error",
+          errorMessage: "Not affected. Please use right callNo.",
+        });
+      }
+    });
 
   app.post("/call-request", postCallRequest);
   app.get("/call-status", getCallStatus);
