@@ -1,10 +1,16 @@
-import { PathObject, TokenObject } from "./../types/types.d";
-import express, { Request, Response, NextFunction, Express } from "express";
+import { Executable, PathObject, TokenObject } from "./../types/types.d";
+import express, {
+  Request,
+  Response,
+  NextFunction,
+  Express,
+  RequestHandler,
+} from "express";
 import { QueryError, Connection } from "mysql2";
 import * as sensitiveValue from "./sensitive-value.json";
 import { kakao_token as kakaoToken } from "./sensitive-value.json";
 import * as fs from "fs";
-import { getTimeStamp } from "./base_module";
+import { catchError, getTimeStamp } from "./base_module";
 import * as curl from "./curl";
 
 let refreshToken: string, accessToken: string;
@@ -28,7 +34,8 @@ export const writeToken = (data: TokenObject): void => {
     newSensitiveValue.kakao_token = newToken;
     stringData = JSON.stringify(newSensitiveValue, null, 2);
   } catch (e) {
-    console.log(e);
+    console.error(e);
+    console.log("error occurred. Please see the error log.");
     return;
   }
   fs.writeFile("./sensitive-value.json", stringData, (err) => {
@@ -41,13 +48,11 @@ export const writeToken = (data: TokenObject): void => {
   });
 };
 
-export const verifyToken = async (
-  forceRefresh: boolean = false
-): Promise<void> => {
+export const verifyToken = async (forceRefresh: boolean = false) => {
   const ts = getTimeStamp();
   const diff = kakaoToken.time_stamp + kakaoToken.expires_in - ts;
-  if (diff < 0) {
-    console.log("Kakao token has been expired before %d seconds.");
+  if (diff <= 0) {
+    console.log("Kakao token has been expired before %d seconds.", -diff);
   } else {
     console.log(
       `Kakao token can live for ${diff} seconds from now. (Now is ${ts}.)`
@@ -66,7 +71,7 @@ export const verifyToken = async (
   refreshToken = kakaoToken.refresh_token;
 };
 
-const doRefreshToken = async (refresh_token?: string): Promise<void> => {
+const doRefreshToken = async (refresh_token?: string) => {
   const ts = getTimeStamp();
   const diff = kakaoToken.time_stamp + kakaoToken.expires_in - ts;
   if (diff < 0) {
@@ -75,30 +80,34 @@ const doRefreshToken = async (refresh_token?: string): Promise<void> => {
     );
     return;
   }
-  let data = await curl.command(null, curl.commandObject.getToken);
-  try {
-    if (data.error) {
-      console.log("Error occurred.");
-      console.log(data);
-      return;
+  let data = await curl.command("getToken");
+  const isTokenObject = (
+    data: string | object | undefined
+  ): data is TokenObject => {
+    return (data as TokenObject).token_type !== undefined;
+  };
+  if (isTokenObject(data)) {
+    try {
+      if (data.error) {
+        console.log("Error occurred.");
+        console.log(data);
+        return;
+      }
+      data.time_stamp = ts;
+      kakaoToken.access_token = data.access_token;
+      kakaoToken.expires_in = data.expires_in;
+      kakaoToken.time_stamp = ts;
+      writeToken(kakaoToken);
+    } catch (e) {
+      console.log("Error occurred while updating token.");
+      debugger;
     }
-    data.time_stamp = ts;
-    kakaoToken.access_token = data.access_token;
-    kakaoToken.expires_in = data.expires_in;
-    kakaoToken.time_stamp = ts;
-    writeToken(kakaoToken);
-  } catch (e) {
-    console.log("Error occurred while updating token.");
-    debugger;
   }
 };
 
-export const execute = async (
-  app: Express,
-  conn: Connection
-): Promise<PathObject | void> => {
-  const postSetToken = async (req: Request, res: Response) => {
-    try {
+const execute: Executable = async (app, conn) => {
+  const postSetToken: RequestHandler = (req, res) =>
+    catchError(res, async () => {
       accessToken = req.body["access_token"];
       refreshToken = req.body["refresh_token"];
       console.log(
@@ -110,33 +119,19 @@ export const execute = async (
       res.status(200).send({
         status: "success",
       });
-    } catch (e) {
-      console.log(e);
-      res.status(500).send({
-        status: "error",
-        errorMessage: "Internal Server Error",
-      });
-    }
-  };
-
-  verifyToken();
-
-  app.post("/set-token", postSetToken);
-  app.post("/refresh-token", async (req: Request, res: Response) => {
-    try {
+    });
+  const postRefreshToken: RequestHandler = (req, res) =>
+    catchError(res, async () => {
       await doRefreshToken();
       console.log("Token has been refreshed successfully.");
       res.send({
         status: "success",
       });
-      return;
-    } catch (e) {
-      console.log("Error occurred while refreshing token.");
-      console.log(e);
-      res.status(500).send({
-        status: "error",
-      });
-      return;
-    }
-  });
+    });
+
+  verifyToken();
+
+  app.post("/set-token", postSetToken);
+  app.post("/refresh-token", postRefreshToken);
 };
+export default execute;

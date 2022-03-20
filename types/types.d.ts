@@ -7,13 +7,16 @@ import {
   ResultSetHeader,
   Connection,
 } from "mysql2";
-type AsyncExecutable = Promise<Executable>;
 export type PathObject = {
-  get: string[] | null;
-  post: string[] | null;
-  put: string[] | null;
+  get?: string[];
+  post?: string[];
+  put?: string[];
+  delete?: string[];
 };
-export type Executable = (app: Express, conn: Connection) => PathObject | void;
+export type Executable = (
+  app: Express,
+  conn: Connection
+) => PathObject | void | Promise<PathObject | void>;
 export type TokenObject = {
   [key: string]: any;
   error?: Error;
@@ -25,3 +28,18 @@ export type TokenObject = {
   access_token: string;
   expires_in: number;
 };
+export type CallStatus =
+  | "waiting"
+  | "canceled"
+  | "allocated"
+  | "moving"
+  | "finish";
+export type SQLType = "SELECT" | "UPDATE" | "DELETE" | "INSERT";
+export type SendKakaoMessageOptions = {
+  departure: string;
+  arrival: string;
+  phoneAddress: string;
+  seatType?: string;
+};
+type CommandType = "memo" | "sendMessage" | "friends" | "getToken";
+type Curl = { exe: string; headers: string[]; data: string[] };
