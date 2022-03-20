@@ -7,8 +7,8 @@ import express, {
   RequestHandler,
 } from "express";
 import { QueryError, Connection } from "mysql2";
-import * as sensitiveValue from "./sensitive-value.json";
-import { kakao_token as kakaoToken } from "./sensitive-value.json";
+import * as sensitiveValue from "../sensitive-value.json";
+import { kakao_token as kakaoToken } from "../sensitive-value.json";
 import * as fs from "fs";
 import { catchError, getTimeStamp } from "./base_module";
 import * as curl from "./curl";
@@ -38,7 +38,7 @@ export const writeToken = (data: TokenObject): void => {
     console.log("error occurred. Please see the error log.");
     return;
   }
-  fs.writeFile("./sensitive-value.json", stringData, (err) => {
+  fs.writeFile("../sensitive-value.json", stringData, (err) => {
     if (err) {
       debugger;
       console.log("Error occurred while writing token.");
