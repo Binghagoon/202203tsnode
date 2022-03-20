@@ -28,5 +28,5 @@ jobs:
             git fetch
             git pull
             tsc
-            service kubusnode stop
-            service kubusnode start
+            sudo service kubusnode stop
+            sudo service kubusnode start
