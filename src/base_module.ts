@@ -6,7 +6,7 @@ import {
   OkPacket,
   ResultSetHeader,
 } from "mysql2";
-import { CallStatus, HTTPError } from "../types/types";
+import { CallStatus } from "../types/types";
 import moment from "moment-timezone";
 
 const objectKeyRename = (
@@ -18,18 +18,14 @@ const objectKeyRename = (
   delete obj[originalName];
 };
 
-const isHTTPError = (e: unknown): e is HTTPError => {
-  if (Array.isArray(e)) {
-    return typeof e[0] == "string" && typeof e[1] == "number";
-  } else {
-    return false;
-  }
-};
 const isError = (x: any): x is Error => typeof x == "object" && "message" in x;
+const isQueryError = (x: any): x is QueryError =>
+  typeof x == "object" && "code" in x;
 /**
- * HTTPError object can use every situation.
- * If you use 4XX error code you should throw number between 4XX.
- * 5XX error can use just throw string or Error object.
+ * message string property in Error Object must have 3-digit end of string which is HTTP error code.
+ * Error example new Error("No sufficient arguments.400");.
+ * 4XX:Error Object or number.
+ * 5XX: Error Object or number or string.
  * @param res Express res
  * @param callback Some function, function or Promise; async function
  * @param args function's arguments
@@ -47,13 +43,21 @@ const catchError = async (
     message = "Unknown error";
     code = 500;
     stack = "There is no stack.";
-    if (isHTTPError(e)) {
-      message = e[0];
-      code = e[1];
-      stack = e[2]? e[2]:stack;
-    } else if (isError(e)) {
-      message = e.message;
+    let seoulTime = moment().tz("Asia/Seoul").format();
+    seoulTime = seoulTime.slice(0, -6); //Delete +09:00
+    console.error("\n-------Error Print");
+    if (isQueryError(e)) {
+      console.error(`Query error name: ${e.name}`);
+      console.error(`Query message: ${e.message}`);
+      message = "Query error.";
       code = 500;
+      stack = e.stack ? e.stack : stack;
+    } else if (isError(e)) {
+      let errorMessage = e.message;
+      let codeString = errorMessage.slice(-3);
+      code = parseInt(codeString);
+      message = e.message.slice(0, -3);
+      stack = e.stack ? e.stack : stack;
     } else if (typeof e == "string") {
       message = e;
       code = 500;
@@ -71,16 +75,13 @@ const catchError = async (
       }
       code = e;
     }
-    let seoulTime = moment().tz("Asia/Seoul").format();
-    seoulTime = seoulTime.slice(0, -6); //Delete +09:00
-    console.error("\n-------Error Print");
     console.error(`Time(in KST): ${seoulTime}`);
     console.error(`Error: ${message}`);
     console.error(`Code:${code}`);
-    console.error(`Stack:${stack}`);
+    console.error(`Stack↓\n${stack}`);
     console.error("-------Error Print End\n");
     console.log(
-      `Error occurred{\n  Time(in KST):${seoulTime},\n  Error: ${message},\n  Code:${code}\n}`
+      `Error occurred: {\n  Time(in KST):${seoulTime},\n  Error: ${message},\n  Code:${code}\n}`
     );
 
     res.status(code).send({ status: "error", errorMessage: message });
@@ -170,7 +171,7 @@ const noSufficientArgumentError = (
       });
       return true;
     } else {
-      throw ["No sufficient arguments", 400];
+      throw new Error("No sufficient arguments400");
     }
   }
   return false;
