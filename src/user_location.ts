@@ -1,7 +1,7 @@
 // It's referred from 202009-node/user-location.js at d79410924f350a5a88694c77fb02527abcaf188d
 
 import { Executable } from "../types/types";
-import { Response, Request, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import {
   catchError,
   connWithPromise,
