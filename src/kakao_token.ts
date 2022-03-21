@@ -10,42 +10,57 @@ import { QueryError, Connection } from "mysql2";
 import * as sensitiveValue from "../sensitive-value.json";
 import { kakao_token as kakaoToken } from "../sensitive-value.json";
 import * as fs from "fs";
-import { catchError, getTimeStamp } from "./base_module";
+import {
+  catchError,
+  connWithPromise,
+  getTimeStamp,
+  noSufficientArgumentError,
+  OkPacketTypeGuard,
+} from "./base_module";
 import * as curl from "./curl";
+import { tokenObjectTypeGuard } from "./type_guards";
 
 let refreshToken: string, accessToken: string;
-
-export const writeToken = (data: TokenObject): void => {
-  let stringData: string;
+const WritePromise = (path: string, data: string) =>
+  new Promise<void>((resolve, reject) =>
+    fs.writeFile(path, data, (err) => {
+      if (err) {
+        debugger;
+        reject();
+      } else {
+        resolve();
+      }
+    })
+  );
+const newSensitive = (newKakaoToken: TokenObject) => {
+  let newObject: any = { ...sensitiveValue };
+  delete newObject.default;
+  newObject.kakao_token = newKakaoToken;
+  return newObject;
+};
+export const writeToken = async (newToken: any) => {
   try {
-    let newToken: TokenObject = sensitiveValue.kakao_token;
-    for (const property in data) {
-      const strValue = data[property];
-      if (typeof strValue !== "string") {
+    if (!tokenObjectTypeGuard(newToken)) throw "Type mismatched.";
+    for (const property in newToken) {
+      const strValue = newToken[property];
+      if (isNaN(parseInt(strValue))) {
         continue;
       }
-      let number = parseInt(strValue);
-      if (isNaN(number)) {
-        continue;
-      }
-      newToken[property] = number;
+      newToken[property] = parseInt(strValue);
     }
-    let newSensitiveValue = sensitiveValue;
-    newSensitiveValue.kakao_token = newToken;
-    stringData = JSON.stringify(newSensitiveValue, null, 2);
+    const ts = getTimeStamp();
+    newToken.time_stamp = ts;
+    newToken.refresh_time_stamp = ts;
+    const string = JSON.stringify(newSensitive(newToken), null, 2);
+    await WritePromise("./sensitive-value.json", string);
   } catch (e) {
     console.error(e);
-    console.log("error occurred. Please see the error log.");
+    console.log(
+      "error occurred while writing token. Please see the error log."
+    );
+    console.log(e);
     return;
   }
-  fs.writeFile("../sensitive-value.json", stringData, (err) => {
-    if (err) {
-      debugger;
-      console.log("Error occurred while writing token.");
-    } else {
-      console.log("The token has been written successfully.");
-    }
-  });
 };
 
 export const verifyToken = async (forceRefresh: boolean = false) => {
@@ -114,8 +129,8 @@ const execute: Executable = async (app, conn) => {
         `Access Token: ${accessToken}\nRefresh Token: ${refreshToken}`
       );
       const ts = getTimeStamp();
-      req.body.time_stamp = ts;
-      writeToken(req.body);
+      req.body.refresh_time_stamp = ts;
+      await writeToken(req.body);
       res.status(200).send({
         status: "success",
       });
@@ -129,9 +144,56 @@ const execute: Executable = async (app, conn) => {
       });
     });
 
+  const postToken: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      const sql =
+        "INSERT INTO kakao_token (kakao_id, refresh_token, time_stamp, " +
+        " access_token, expires_in) VALUES (?,?,?,?,?)";
+      const body = req.body;
+      const param = [
+        body.kakao_id,
+        body.refresh_token,
+        getTimeStamp(),
+        body.access_token,
+        body.expires_in,
+      ];
+      noSufficientArgumentError(param);
+      const results = await connWithPromise(conn, sql, param);
+      if (!OkPacketTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      if (results.affectedRows == 1) {
+        res.send({
+          status: "success",
+        });
+      } else if (results.affectedRows == 0) {
+        res.send({
+          status: "error",
+          errorMessage: "Not affected",
+        });
+      } else {
+        res.send({
+          status: "error",
+          errorMessage: "Other error",
+        });
+      }
+    });
+
+  const kakaoTokenTest: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      if (req.body.key != sensitiveValue.key) {
+        throw new Error("key is incorrect 400");
+      }
+      let data = await curl.command("isValid", { access_token: accessToken });
+      console.log(data);
+      res.send(data);
+    });
+
   verifyToken();
 
   app.post("/set-token", postSetToken);
+  app.post("/token", postToken);
+  app.post("/kt-test", kakaoTokenTest);
   app.post("/refresh-token", postRefreshToken);
 };
 export default execute;
