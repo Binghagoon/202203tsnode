@@ -21,7 +21,6 @@ const objectKeyRename = (
 const isError = (x: any): x is Error => typeof x == "object" && "message" in x;
 const isQueryError = (x: any): x is QueryError =>
   typeof x == "object" && "code" in x;
-const deepCopy = (x: Object): Object => JSON.parse(JSON.stringify(x));
 /**
  * message string property in Error Object must have 3-digit end of string which is HTTP error code.
  * Error example new Error("No sufficient arguments.400");.
@@ -264,7 +263,6 @@ const statusToNumber: { [status in CallStatus]: number } = {
 };
 
 export {
-  deepCopy,
   objectKeyRename,
   treatError,
   noSufficientArgumentError,
