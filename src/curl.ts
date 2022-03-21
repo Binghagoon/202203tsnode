@@ -93,10 +93,14 @@ function departureArrivalReplace({
   return JSON.stringify(template);
 }
 
-/** If you send message you should fulfill option otherwise message is not sended. */
+/** If you send message you should fulfill option otherwise message is not sended.
+ * And If you check `kakao_token` is valid then option must have access_token.
+ */
 const command = async (
   type: CommandType,
-  options?: SendKakaoMessageOptions
+  options?:
+    | SendKakaoMessageOptions
+    | { access_token?: string; accessToken?: string }
 ) => {
   let exec = async (templateObject: string | null, curl: Curl) =>
     execCommand(createCommand(templateObject, curl));
@@ -113,10 +117,21 @@ const command = async (
       console.log("Kakao message is not sended.");
       throw new Error("Message is not sended");
     }
+    if (!("departure" in options)) throw "Error";
     return await exec(
       departureArrivalReplace(options),
       commandObject.sendMessage
     );
+  } else if (type == "isValid") {
+    if (!(typeof options == "object")) {
+      throw 'isValid need options["access_token"]';
+    }
+    if ("access_token" in options&& typeof options.access_token != "undefined") {
+      kakaoToken.access_token = options.access_token;
+    } else if ("accessToken" in options&& typeof options.accessToken != "undefined") {
+      kakaoToken.access_token = options.accessToken;
+    }
+    return await exec(null, commandObject.isValid);
   }
 };
 

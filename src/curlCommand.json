@@ -31,5 +31,16 @@
       "client_id=f0d540b36132f5297ab997d121a5c838",
       "refresh_token=${refreshToken}"
     ]
+  },
+  "isValid": {
+    "exe": "curl -v -X POST \"https://kapi.kakao.com/v2/user/me\"",
+    "headers": [
+      "Content-Type: application/x-www-form-urlencoded",
+      "Authorization: Bearer ${accessToken}"
+    ],
+    "data": [
+      "grant_type=refresh_token",
+      "client_id=f0d540b36132f5297ab997d121a5c838"
+    ]
   }
 }
