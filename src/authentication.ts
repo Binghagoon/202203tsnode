@@ -10,7 +10,7 @@ import {
 } from "./base_module";
 
 const execute: Executable = async function (app, conn) {
-  const getSignIn: RequestHandler = async (req, res) =>
+  const getSignIn: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql =
         "SELECT u.id, rl.role FROM  `user` u LEFT OUTER JOIN role_list rl ON u.role = rl.id WHERE username = ? AND (pw IS NULL OR  pw = ?)";
@@ -36,7 +36,7 @@ const execute: Executable = async function (app, conn) {
       }
     });
 
-  const postSignUp: RequestHandler = async (req, res) =>
+  const postSignUp: RequestHandler = (req, res) =>
     catchError(res, async () => {
       //POST
       const sql =
@@ -55,7 +55,7 @@ const execute: Executable = async function (app, conn) {
       });
     });
 
-  const putSignUpAllow: RequestHandler = async (req, res) =>
+  const putSignUpAllow: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const args = req.body;
       const type = args.type;
