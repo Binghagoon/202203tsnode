@@ -22,6 +22,7 @@ export type TokenObject = {
   error?: Error;
   refresh_token: string;
   refresh_token_expires_in: number;
+  refresh_time_stamp: number;
   scope: string;
   token_type: string;
   time_stamp: number;
@@ -41,5 +42,5 @@ export type SendKakaoMessageOptions = {
   phoneAddress: string;
   seatType?: string;
 };
-type CommandType = "memo" | "sendMessage" | "friends" | "getToken";
+type CommandType = "memo" | "sendMessage" | "friends" | "getToken" | "isValid";
 type Curl = { exe: string; headers: string[]; data: string[] };

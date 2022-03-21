@@ -1,6 +1,6 @@
 import { TokenObject } from "types/types";
 const isAllString = function (...args: any) {
-  let b = false;
+  let b = true;
   for (const arg in args) {
     b = b && typeof arg == "string";
   }
@@ -9,6 +9,6 @@ const isAllString = function (...args: any) {
 export const tokenObjectTypeGuard = function (x: any): x is TokenObject {
   return (
     typeof x == "object" &&
-    isAllString(x.refresh_token, x.scope, x.access_token)
+    isAllString(x.refresh_token, x.scope, x.access_token, x.refresh_time_stamp)
   );
 };
