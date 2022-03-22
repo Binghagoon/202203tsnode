@@ -5,17 +5,21 @@ import { RequestHandler } from "express";
 import { Executable, SendKakaoMessageOptions } from "types/types";
 import { catchError } from "./base_module";
 import { command } from "./curl";
+import * as sensitiveValue from "../data/sensitive-value.json";
 
-async function friendList() {
-  return await command("friends");
+function friendList() {
+  return  command("friends");
 }
 
 const execute: Executable = async function (app, conn) {
   const getFriendList: RequestHandler = async (req, res) =>
     catchError(res, async () => {
+      if (req.query.key != sensitiveValue.key) {
+        throw new Error("key is incorrect 400");
+      }
       let list;
       try {
-        list = friendList();
+        list = await friendList();
       } catch (e) {
         debugger;
       }
@@ -23,13 +27,14 @@ const execute: Executable = async function (app, conn) {
     });
   const sendMessage: RequestHandler = async (req, res) =>
     catchError(res, async () => {
-      await sendKakaoMessage({
+      let data =await sendKakaoMessage({
         departure: "서울",
-        arrival: "부산",
+        arrival: "동대구",
         phoneAddress: "010-1111-2222",
         seatType: "테스트",
       });
-      res.send({ status: "success" });
+      console.log(data);
+      res.send(data);
     });
 
   app.get("/friend-list", getFriendList);

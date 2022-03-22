@@ -21,8 +21,8 @@ const sendMessageTemplate = {
   object_type: "text",
   text: "호출이 들어왔습니다.\n좌석은 ${seatType}이고, 출발지는 ${departure}이고, 도착지는 ${arrival}입니다.\n 전화번호는 ${phoneAddress}입니다.",
   link: {
-    web_url: "https://smartku.net",
-    mobile_web_url: "https://smartku.net",
+    web_url: "https://smartku.bingha.me",
+    mobile_web_url: "https://smartku.bingha.me",
   },
   button_title: "바로 확인",
 };
@@ -69,9 +69,9 @@ const createCommand = (templateObject: string | null, curl: Curl): string => {
     if (value.includes("${refreshToken}")) {
       value = value.replace("${refreshToken}", kakaoToken.refresh_token);
     }
-    data = `${data} --data-urlencode "${value}"`;
+    data = `${data} --data-urlencode '${value}'`;
   });
-  console.log(`${command}\n${header}\n${data}`);
+  //console.log(`${command}\n${header}\n${data}`);
   command = command + header + data;
   return command;
 };
@@ -107,7 +107,7 @@ const command = async (
   if (type == "memo") {
     return await exec(JSON.stringify(memoObject), commandObject.memo);
   } else if (type == "friends") {
-    throw new Error("Not implemented"); //TBD
+    return await exec(null,commandObject.friends);
   } else if (type == "getToken") {
     return await exec(null, commandObject.getToken);
   } else if (type == "sendMessage") {
