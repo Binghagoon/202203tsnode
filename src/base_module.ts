@@ -56,7 +56,11 @@ const catchError = async (
       let errorMessage = e.message;
       let codeString = errorMessage.slice(-3);
       code = parseInt(codeString);
-      message = e.message.slice(0, -3);
+      if(!isNaN(code)){
+        message = errorMessage.slice(0, -3);
+      }else{
+        message = "Pure Error Object. Described below.";
+      }
       stack = e.stack ? e.stack : stack;
     } else if (typeof e == "string") {
       message = e;
