@@ -7,8 +7,8 @@ import express, {
   RequestHandler,
 } from "express";
 import { QueryError, Connection } from "mysql2";
-import * as sensitiveValue from "../sensitive-value.json";
-import { kakao_token as kakaoToken } from "../sensitive-value.json";
+import * as sensitiveValue from "../data/sensitive-value.json";
+import { kakao_token as kakaoToken } from "../data/sensitive-value.json";
 import * as fs from "fs";
 import {
   catchError,
@@ -52,7 +52,7 @@ export const writeToken = async (newToken: any) => {
     newToken.time_stamp = ts;
     newToken.refresh_time_stamp = ts;
     const string = JSON.stringify(newSensitive(newToken), null, 2);
-    await WritePromise("./sensitive-value.json", string);
+    await WritePromise("./data/sensitive-value.json", string);
   } catch (e) {
     console.error(e);
     console.log(

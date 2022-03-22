@@ -4,8 +4,8 @@ import {
   SendKakaoMessageOptions,
   TokenObject,
 } from "./../types/types.d";
-import commandObject from "./curlCommand.json";
-import { kakao_token as kakaoToken } from "../sensitive-value.json";
+import commandObject from "../data/curlCommand.json";
+import { kakao_token as kakaoToken } from "../data/sensitive-value.json";
 import { exec } from "child_process";
 
 const memoObject = {
