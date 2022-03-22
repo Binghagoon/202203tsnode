@@ -59,7 +59,7 @@ const catchError = async (
       if(!isNaN(code)){
         message = errorMessage.slice(0, -3);
       }else{
-        message = "Pure Error Object. Described below.";
+        message = "Pure Error Object. Described on stderr.";
       }
       stack = e.stack ? e.stack : stack;
     } else if (typeof e == "string") {
