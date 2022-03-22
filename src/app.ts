@@ -11,6 +11,7 @@ import authentication from "./authentication";
 import message from "./message";
 import kakaoToken from "./kakao_token";
 import { Executable } from "../types/types";
+import { catchError } from "./base_module";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
@@ -47,44 +48,16 @@ Promise.all(promise)
     console.log("Error occurred.");
   });
 
-app.get("/", function (req, res) {
-  try {
+app.get("/", (req, res) =>
+  catchError(res, async () => {
     let d = new Date();
     res.send(
       "Server Alive!! It's time is " +
         d.toLocaleString(undefined, { timeZone: "Asia/Seoul" }) +
         " maybe this is KST.\n"
     );
-  } catch (e) {
-    console.error(e);
-    console.log("Error occurred. Please see the error log.");
-    res
-      .status(500)
-      .send({ status: "error", errorMessage: "Internal Server Error" });
-  }
-});
-app.post("/post-test", async function (req, res) {
-  try {
-    debugger;
-    res.send(`Hello`);
-  } catch (e) {
-    console.error(e);
-    console.log("Error occurred. Please see the error log.");
-    res
-      .status(500)
-      .send({ status: "error", errorMessage: "Internal Server Error" });
-  }
-});
-app.get("/throw-error", async function (req, res) {
-  try {
-  } catch (e) {
-    console.error(e);
-    console.log("Error occurred. Please see the error log.");
-    res
-      .status(500)
-      .send({ status: "error", errorMessage: "Internal Server Error" });
-  }
-});
+  })
+);
 //app.post('/sign-out',serverFunction.SignOut(conn));
 //app.post('/sign-up', serverFunction.SignUp(conn));
 //app.post('/sign-up-allow', serverFunction.SignUpAllow(conn));
@@ -95,11 +68,22 @@ app.get("/throw-error", async function (req, res) {
 //app.get("/get-location", serverFunction.GetLocation(conn));
 //app.post("/session-update", serverFunction.SessionUpdate(conn));
 
-app.listen(sensitive.port, () => {
-  console.log("http server opened on port %d", sensitive.port);
-  console.log(`Database is ${sensitive.dbinfo.database}`);
-});
-/*
+const OpenPort = (portNumber: number) =>
+  new Promise((resolve, reject) =>
+    app
+      .listen(portNumber, () => {
+        resolve(null);
+      })
+      .on("error", reject)
+  );
+OpenPort(sensitive.port)
+  .then(() => {
+    console.log(`http server opened on port ${sensitive.port}`);
+    console.log(`Database is ${sensitive.dbinfo.database}`);
+  })
+  .catch(console.log);
+
+/*  
 app.get('/sign-all', (req, res)=>{
     //var sql = 'SELECT * FROM `user` u INNER JOIN `user_role` ur on  u.`no` = ur.`no` INNER JOIN roletype rt ON rt. WHERE `id` = ?;';
     var sql = 'SELECT u.`no`, `name`, `id`, `role` FROM `user` u ' +
