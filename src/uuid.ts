@@ -5,10 +5,10 @@ export const receiverToUuid: { [user: string]: string } = {
   driver1: sensitive.friends.elements[1].uuid,
   driver2: sensitive.friends.elements[2].uuid,
 };
-const receiver: string[] = [];
+export const receiver: string[] = [];
 export const getReceiver = (): string[] => {
   const hour = seoul.getHour();
-  if (hour < 8 && hour > 19) {
+  if (hour < 8 || hour > 19) {
     let msuuid = sensitive.friends.elements[0].uuid;
     if (receiver.includes(msuuid)) return [msuuid];
     else return [];
@@ -16,4 +16,3 @@ export const getReceiver = (): string[] => {
     return receiver;
   }
 };
-export const pushReceiver = receiver.push;

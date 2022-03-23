@@ -1,6 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
-import fs from "fs/promises";
 import sensitive from "../data/sensitive-value.json";
 import mysql from "mysql2";
 import recordPositions from "./record_positions";
@@ -34,11 +32,11 @@ shellArgs.forEach((value, index, array) => {
     const receiverList = shellArgs.slice(index + 1);
     receiverList.forEach((value) => {
       if (value == "drivers")
-        uuid.pushReceiver(
+        uuid.receiver.push(
           uuid.receiverToUuid["driver1"],
           uuid.receiverToUuid["driver2"]
         );
-      else  uuid.pushReceiver(uuid.receiverToUuid[value]);
+      else  uuid.receiver.push(uuid.receiverToUuid[value]);
     });
   }
 });

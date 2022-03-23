@@ -7,6 +7,7 @@ import {
 import commandObject from "../data/curlCommand.json";
 import { kakao_token as kakaoToken } from "../data/sensitive-value.json";
 import { exec } from "child_process";
+import {getReceiver} from "./uuid";
 
 const memoObject = {
   object_type: "text",
@@ -64,8 +65,11 @@ const createCommand = (templateObject: string | null, curl: Curl): string => {
         "${templateObject}",
         templateObject ? templateObject : JSON.stringify(memoObject) + "1"
       );
-    }
-    if (value.includes("${refreshToken}")) {
+    } else if (value.includes("receiver_uuids")) {
+      let rcv = getReceiver();
+      let string = '"' + rcv.join('","') + '"';
+      value = value.replace("list", string);
+    } else if (value.includes("${refreshToken}")) {
       value = value.replace("${refreshToken}", kakaoToken.refresh_token);
     }
     data = `${data} --data-urlencode '${value}'`;
@@ -106,7 +110,7 @@ const command = async (
   if (type == "memo") {
     return await exec(JSON.stringify(memoObject), commandObject.memo);
   } else if (type == "friends") {
-    return await exec(null,commandObject.friends);
+    return await exec(null, commandObject.friends);
   } else if (type == "getToken") {
     return await exec(null, commandObject.getToken);
   } else if (type == "sendMessage") {
@@ -125,9 +129,15 @@ const command = async (
     if (!(typeof options == "object")) {
       throw 'isValid need options["access_token"]';
     }
-    if ("access_token" in options&& typeof options.access_token != "undefined") {
+    if (
+      "access_token" in options &&
+      typeof options.access_token != "undefined"
+    ) {
       kakaoToken.access_token = options.access_token;
-    } else if ("accessToken" in options&& typeof options.accessToken != "undefined") {
+    } else if (
+      "accessToken" in options &&
+      typeof options.accessToken != "undefined"
+    ) {
       kakaoToken.access_token = options.accessToken;
     }
     return await exec(null, commandObject.isValid);

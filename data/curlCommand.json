@@ -19,7 +19,7 @@
       "Authorization: Bearer ${accessToken}"
     ],
     "data": [
-      "receiver_uuids=[\"GS0UJxcjFCENPw4_Cj0POAEtGyscJRAmaQ\"]",
+      "receiver_uuids=[list]",
       "template_object=${templateObject}"
     ]
   },
