@@ -35,7 +35,6 @@ const execCommand = (command: string): Promise<object | string> => {
         debugger;
         reject(error);
       }
-      console.log(`stdout: ${stdout}`);
       try {
         const data: object = JSON.parse(stdout);
         resolve(data);
@@ -43,7 +42,7 @@ const execCommand = (command: string): Promise<object | string> => {
         console.error(e);
         debugger;
         console.log("Error occurred while parsing.");
-        return stdout;
+        resolve(stdout);
       }
     });
   });
@@ -133,6 +132,7 @@ const command = async (
     }
     return await exec(null, commandObject.isValid);
   }
+  return "Nothing executed.";
 };
 
 export { command };
