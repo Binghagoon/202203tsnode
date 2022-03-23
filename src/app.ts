@@ -12,6 +12,7 @@ import message from "./message";
 import kakaoToken from "./kakao_token";
 import { Executable } from "../types/types";
 import { catchError } from "./base_module";
+import * as uuid from "./uuid";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
@@ -26,6 +27,20 @@ app.use(function (req, res, next) {
     "Origin, X-Requested-With, Content-Type, Accept"
   );
   next();
+});
+const shellArgs = process.argv.slice(2);
+shellArgs.forEach((value, index, array) => {
+  if (value == "--receiver") {
+    const receiverList = shellArgs.slice(index + 1);
+    receiverList.forEach((value) => {
+      if (value == "drivers")
+        uuid.pushReceiver(
+          uuid.receiverToUuid["driver1"],
+          uuid.receiverToUuid["driver2"]
+        );
+      else  uuid.pushReceiver(uuid.receiverToUuid[value]);
+    });
+  }
 });
 
 //var serverFunction = require("./open_server");
@@ -68,8 +83,8 @@ app.get("/", (req, res) =>
 //app.get("/get-location", serverFunction.GetLocation(conn));
 //app.post("/session-update", serverFunction.SessionUpdate(conn));
 
-const OpenPort = (portNumber: number) =>
-  new Promise((resolve, reject) =>
+const OpenPort = (portNumber: number)=>
+  new Promise<null>((resolve, reject) =>
     app
       .listen(portNumber, () => {
         resolve(null);
@@ -77,11 +92,13 @@ const OpenPort = (portNumber: number) =>
       .on("error", reject)
   );
 OpenPort(sensitive.port)
-  .then(() => {
+  .then(function () {
     console.log(`http server opened on port ${sensitive.port}`);
     console.log(`Database is ${sensitive.dbinfo.database}`);
   })
-  .catch(console.log);
+  .catch((e) => {
+    throw e;
+  });
 
 /*  
 app.get('/sign-all', (req, res)=>{
