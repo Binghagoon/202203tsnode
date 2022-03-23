@@ -29,9 +29,9 @@ const execute: Executable = async function (app, conn) {
         res.status(401).send({ status: "notAllowed" });
       } else {
         let result = results[0];
-        res.status(200).send({
+        res.send({
           role: result.role,
-          id: result.no,
+          id: result.id,
         });
       }
     });
