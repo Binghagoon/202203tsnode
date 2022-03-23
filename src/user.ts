@@ -15,6 +15,7 @@ import {
   catchError,
   OkPacketTypeGuard,
 } from "./base_module";
+import * as sensitiveValue from "../data/sensitive-value.json";
 
 const execute: Executable = async function (app, conn) {
   const getId: RequestHandler = (req, res) =>
@@ -119,12 +120,29 @@ const execute: Executable = async function (app, conn) {
         });
       }
     });
+  const getAllUsers: RequestHandler = (req, res) =>
+    catchError(res, async () => {
+      if (req.body.key != sensitiveValue.key) {
+        throw new Error("key is incorrect 400");
+      }
+      const sql = "SELECT * FROM user_view;";
+      const results = await connWithPromise(conn, sql, []);
+      if (!selectTypeGuard(results)) {
+        throw "Type mismatched";
+      }
+      res.send(results);
+    });
 
   app.get("/get-id", getId);
+  app.get("/all-users", getAllUsers);
   app.get("/get-user-info", getUserInfo);
   app.get("/get-student-info", getStudentInfo);
   app.get("/get-driver-info", getDriverInfo);
   app.post("/update-student-info", postUpdateStudentInfo);
   app.post("/update-driver-info", postUpdateDriverInfo);
+  return {
+    get: ["/get-id", "/all-users", "/get-user-info", "/get-driver-info"],
+    post: ["/update-student-info", "/update-driver-info"],
+  };
 };
 export default execute;
