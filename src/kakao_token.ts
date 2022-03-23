@@ -1,14 +1,7 @@
 import { Executable, PathObject, TokenObject } from "./../types/types.d";
-import express, {
-  Request,
-  Response,
-  NextFunction,
-  Express,
-  RequestHandler,
-} from "express";
-import { QueryError, Connection } from "mysql2";
+import { RequestHandler } from "express";
 import * as sensitiveValue from "../data/sensitive-value.json";
-import { kakao_token as kakaoToken } from "../data/sensitive-value.json";
+import { kakao_token as kakaoTokenOrigin } from "../data/sensitive-value.json";
 import * as fs from "fs";
 import {
   catchError,
@@ -20,15 +13,15 @@ import {
 import * as curl from "./curl";
 import { tokenObjectTypeGuard } from "./type_guards";
 
-let refreshToken: string, accessToken: string;
+let refreshToken: string, accessToken: string, kakaoToken: TokenObject;
 const WritePromise = (path: string, data: string) =>
-  new Promise<void>((resolve, reject) =>
+  new Promise<string>((resolve, reject) =>
     fs.writeFile(path, data, (err) => {
       if (err) {
         debugger;
         reject();
       } else {
-        resolve();
+        resolve(data);
       }
     })
   );
@@ -38,29 +31,20 @@ const newSensitive = (newKakaoToken: TokenObject) => {
   newObject.kakao_token = newKakaoToken;
   return newObject;
 };
+
 export const writeToken = async (newToken: any) => {
-  try {
-    if (!tokenObjectTypeGuard(newToken)) throw "Type mismatched.";
-    for (const property in newToken) {
-      const strValue = newToken[property];
-      if (isNaN(parseInt(strValue))) {
-        continue;
-      }
-      newToken[property] = parseInt(strValue);
+  if (!tokenObjectTypeGuard(newToken)) throw "Type mismatched.";
+  for (const property in newToken) {
+    const strValue = newToken[property];
+    if (isNaN(parseInt(strValue))) {
+      continue;
     }
-    const ts = getTimeStamp();
-    newToken.time_stamp = ts;
-    newToken.refresh_time_stamp = ts;
-    const string = JSON.stringify(newSensitive(newToken), null, 2);
-    await WritePromise("./data/sensitive-value.json", string);
-  } catch (e) {
-    console.error(e);
-    console.log(
-      "error occurred while writing token. Please see the error log."
-    );
-    console.log(e);
-    return;
+    newToken[property] = parseInt(strValue);
   }
+  const ts = getTimeStamp();
+  newToken.time_stamp = ts;
+  const string = JSON.stringify(newSensitive(newToken), null, 2);
+  return await WritePromise("./data/sensitive-value.json", string);
 };
 
 export const verifyToken = async (forceRefresh: boolean = false) => {
@@ -88,14 +72,15 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
 
 const doRefreshToken = async (refresh_token?: string) => {
   const ts = getTimeStamp();
-  const diff = kakaoToken.refresh_time_stamp + kakaoToken.refresh_token_expires_in - ts;
+  const diff =
+    kakaoToken.refresh_time_stamp + kakaoToken.refresh_token_expires_in - ts;
   if (diff < 0) {
     console.log(
       "Refresh token has been expired too. Please get with Kakao log in."
     );
     return;
   }
-  let data = await curl.command("getToken");
+  let data = await curl.command("getToken"); //e.g: {"access_token":"rqun4rzjndO2Ns48epBZCXyTNhwwy5M51X8HSgorDNQAAAF_tIb4Dg","token_type":"bearer","expires_in":21599}
   const isTokenObject = (
     data: string | object | undefined
   ): data is TokenObject => {
@@ -110,9 +95,9 @@ const doRefreshToken = async (refresh_token?: string) => {
       }
       data.time_stamp = ts;
       kakaoToken.access_token = data.access_token;
-      kakaoToken.expires_in = data.expires_in;
-      kakaoToken.time_stamp = ts;
-      writeToken(kakaoToken);
+      kakaoToken.time_stamp = data.time_stamp;
+      data = kakaoToken;
+      let writeResult = await writeToken(data);
     } catch (e) {
       console.log("Error occurred while updating token.");
       debugger;
@@ -188,7 +173,7 @@ const execute: Executable = async (app, conn) => {
       console.log(data);
       res.send(data);
     });
-
+  kakaoToken = { ...kakaoTokenOrigin };
   verifyToken();
 
   app.post("/set-token", postSetToken);
