@@ -52,11 +52,12 @@ const execute: Executable = async function (app, conn) {
       }
       const params = [no, departureNo, arrivalNo, isWheelchairSeat];
       noSufficientArgumentError(params);
+      let kakaoResult;
       try {
         let departureName = await getPositionName(departureNo, conn);
         let arrivalName = await getPositionName(arrivalNo, conn);
         let phoneAddress = await getPhoneAddress(no, conn);
-        await sendKakaoMessage({
+        kakaoResult = await sendKakaoMessage({
           departure: departureName,
           arrival: arrivalName,
           phoneAddress: phoneAddress,
@@ -64,6 +65,10 @@ const execute: Executable = async function (app, conn) {
       } catch (e) {
         console.log("Error occurred while sending kakao message.");
         console.log(e);
+        kakaoResult = {
+          status:"error",
+          errorMessage:e
+        }
       }
       const results = await connWithPromise(conn, sql, params);
       if (!OkPacketTypeGuard(results)) {
@@ -71,6 +76,7 @@ const execute: Executable = async function (app, conn) {
       }
       const result = {
         callNo: results.insertId,
+        kakaoResult: kakaoResult,
       };
       if (results.affectedRows != 1) {
         throw "Multiple line affected.";
