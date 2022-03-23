@@ -88,7 +88,7 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
 
 const doRefreshToken = async (refresh_token?: string) => {
   const ts = getTimeStamp();
-  const diff = kakaoToken.time_stamp + kakaoToken.expires_in - ts;
+  const diff = kakaoToken.refresh_time_stamp + kakaoToken.refresh_token_expires_in - ts;
   if (diff < 0) {
     console.log(
       "Refresh token has been expired too. Please get with Kakao log in."
