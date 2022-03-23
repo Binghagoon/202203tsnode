@@ -13,7 +13,7 @@ const execute: Executable = async function (app, conn) {
   const getSignIn: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql =
-        "SELECT u.id, rl.role FROM  `user` u LEFT OUTER JOIN role_list rl ON u.role = rl.id WHERE username = ? AND (pw IS NULL OR  pw = ?)";
+        "SELECT u.id, rl.role, u.realname FROM  `user` u LEFT OUTER JOIN role_list rl ON u.role = rl.id WHERE username = ? AND (pw IS NULL OR  pw = ?)";
       const arg = req.query;
       const params = [arg.username, arg.pw];
       if (noSufficientArgumentError(params, res)) {
@@ -32,6 +32,7 @@ const execute: Executable = async function (app, conn) {
         res.send({
           role: result.role,
           id: result.id,
+          realname:result.realname
         });
       }
     });
