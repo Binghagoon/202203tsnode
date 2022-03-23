@@ -56,9 +56,9 @@ const catchError = async (
       let errorMessage = e.message;
       let codeString = errorMessage.slice(-3);
       code = parseInt(codeString);
-      if(!isNaN(code)){
+      if (!isNaN(code)) {
         message = errorMessage.slice(0, -3);
-      }else{
+      } else {
         message = "Pure Error Object. Described on stderr.";
       }
       stack = e.stack ? e.stack : stack;
@@ -165,7 +165,7 @@ const noSufficientArgumentError = (
   //to be tested.
   let b = false;
   for (const val of args) {
-    b = b || val == undefined;
+    b = b || (val == undefined && val == "undefined");
   }
   if (b) {
     if (res) {
@@ -203,7 +203,7 @@ const OkPacketTypeGuard = (
     | RowDataPacket[][]
     | OkPacket[]
 ): results is OkPacket => {
-  return !Array.isArray(results) && "affectedRow" in results;
+  return !Array.isArray(results) && "affectedRows" in results;
 };
 const connWithPromise = (
   conn: Connection,
