@@ -19,7 +19,7 @@ const WritePromise = (path: string, data: string) =>
     fs.writeFile(path, data, (err) => {
       if (err) {
         debugger;
-        reject();
+        reject(err);
       } else {
         resolve(data);
       }
@@ -43,6 +43,9 @@ export const writeToken = async (newToken: any) => {
   }
   const ts = getTimeStamp();
   newToken.time_stamp = ts;
+  if (typeof newToken.access_token == "number") {
+    throw new Error("Why access token is number?500");
+  }
   const string = JSON.stringify(newSensitive(newToken), null, 2);
   return await WritePromise("./data/sensitive-value.json", string);
 };
@@ -58,9 +61,7 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
     );
     const rdiff =
       kakaoToken.time_stamp + kakaoToken.refresh_token_expires_in - ts;
-    console.log(
-      `Refresh token can live for ${rdiff} seconds from now. Please refresh.`
-    );
+    console.log(`Refresh token can live for ${rdiff} seconds from now.`);
   }
   if (isNaN(diff) || diff < 1000 || forceRefresh) {
     console.log("Getting new tokens...");
