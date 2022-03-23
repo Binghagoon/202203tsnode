@@ -64,13 +64,13 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
   }
   if (isNaN(diff) || diff < 1000 || forceRefresh) {
     console.log("Getting new tokens...");
-    await doRefreshToken(kakaoToken.refresh_token);
+    await doRefreshToken();
   }
   accessToken = kakaoToken.access_token;
   refreshToken = kakaoToken.refresh_token;
 };
 
-const doRefreshToken = async (refresh_token?: string) => {
+export const doRefreshToken = async () => {
   const ts = getTimeStamp();
   const diff =
     kakaoToken.refresh_time_stamp + kakaoToken.refresh_token_expires_in - ts;

@@ -3,12 +3,14 @@
 let accessToken: String, refreshToken: String;
 import { RequestHandler } from "express";
 import { Executable, SendKakaoMessageOptions } from "types/types";
-import { catchError } from "./base_module";
+import { catchError, isErrorKakaoResult } from "./base_module";
 import { command } from "./curl";
 import * as sensitiveValue from "../data/sensitive-value.json";
+import { doRefreshToken } from "./kakao_token";
+import { ErrorKakaoResult } from "../types/types";
 
 function friendList() {
-  return  command("friends");
+  return command("friends");
 }
 
 const execute: Executable = async function (app, conn) {
@@ -27,7 +29,7 @@ const execute: Executable = async function (app, conn) {
     });
   const sendMessage: RequestHandler = async (req, res) =>
     catchError(res, async () => {
-      let data =await sendKakaoMessage({
+      let data = await sendKakaoMessage({
         departure: "서울",
         arrival: "동대구",
         phoneAddress: "010-1111-2222",
@@ -43,6 +45,17 @@ const execute: Executable = async function (app, conn) {
 };
 async function sendKakaoMessage(options: SendKakaoMessageOptions) {
   let message = await command("sendMessage", options);
+  if (isErrorKakaoResult(message)) {
+    if (message.code == -401) {
+      console.log("Access token has expired. Program refreshes token.");
+      doRefreshToken();
+      message = await command("sendMessage", options);
+    } else {
+      console.error(message);
+      console.log("Unknown error code. Please see stderr.");
+      throw new Error("Unknown error code.500");
+    }
+  }
   return message;
 }
 export {

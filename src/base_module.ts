@@ -6,7 +6,7 @@ import {
   OkPacket,
   ResultSetHeader,
 } from "mysql2";
-import { CallStatus } from "../types/types";
+import { CallStatus, ErrorKakaoResult } from "../types/types";
 import moment from "moment-timezone";
 
 const objectKeyRename = (
@@ -91,6 +91,9 @@ const catchError = async (
     res.status(code).send({ status: "error", errorMessage: message });
     return null;
   }
+};
+const isErrorKakaoResult = (message: any): message is ErrorKakaoResult => {
+  return typeof message == "object" && "msg" in message && "code" in message;
 };
 /**
  * @deprecated
@@ -267,6 +270,7 @@ const statusToNumber: { [status in CallStatus]: number } = {
 };
 
 export {
+  isErrorKakaoResult,
   objectKeyRename,
   treatError,
   noSufficientArgumentError,

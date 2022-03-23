@@ -42,5 +42,10 @@ export type SendKakaoMessageOptions = {
   phoneAddress: string;
   seatType?: string;
 };
+export type ErrorKakaoResult = {
+  msg: string;
+  code: number;
+};
+
 type CommandType = "memo" | "sendMessage" | "friends" | "getToken" | "isValid";
 type Curl = { exe: string; headers: string[]; data: string[] };
