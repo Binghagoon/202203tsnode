@@ -7,14 +7,12 @@ import express, {
 } from "express";
 import Connection from "mysql2/typings/mysql/lib/Connection";
 import { Executable, PathObject } from "../types/types";
-import {
-  noSufficientArgumentError,
-} from "./base_module";
 import * as sensitiveValue from "../data/sensitive-value.json";
 import catchError from "./base_modules/catchError";
 import objectKeyRename from "./base_modules/objectKeyRename";
 import {OkPacketTypeGuard, selectTypeGuard} from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";
+import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
 
 const execute: Executable = async function (app, conn) {
   const getId: RequestHandler = (req, res) =>

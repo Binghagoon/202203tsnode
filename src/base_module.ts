@@ -10,6 +10,7 @@ import {
 import { CallStatus, QueryResults } from "../types/types";
 import moment from "moment-timezone";
 import isError from "./base_modules/type_guards/isError";
+import connWithPromise from "./base_modules/conn_with_promise";
 
 /**
  * @deprecated
@@ -77,41 +78,7 @@ const ifErrorRaise500 = async (
   }
 };
 
-const noSufficientArgumentError = (
-  args: any[],
-  res?: express.Response<any, Record<string, any>>
-): boolean => {
-  //to be tested.
-  let b = false;
-  for (const val of args) {
-    b = b || (val == undefined && val == "undefined");
-  }
-  if (b) {
-    if (res) {
-      res.send({
-        status: "error",
-        errorMessage: "No sufficient arguments",
-      });
-      return true;
-    } else {
-      throw new Error("No sufficient arguments400");
-    }
-  }
-  return false;
-};
 
-const connWithPromise = (
-  conn: Connection,
-  sql: string,
-  params: any[],
-  getField = false
-): Promise<QueryResults | [QueryResults, FieldPacket[]]> =>
-  new Promise(function (resolve, reject) {
-    conn.query(sql, params, (err, results, field) => {
-      if (err) reject(err);
-      else resolve(getField ? [results, field] : results);
-    });
-  });
 //type GetUserData = (arg: any, conn:Connection) => any;
 
 const getPositionName = async function (
@@ -162,8 +129,6 @@ const statusToNumber: { [status in CallStatus]: number } = {
 
 export {
   treatError,
-  noSufficientArgumentError,
-  connWithPromise,
   getTimeStamp,
   raiseError as raise500,
   ifErrorRaise500 as raiseInternalServerError,

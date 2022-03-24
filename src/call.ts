@@ -2,7 +2,6 @@
 
 //import getid from "./get-id-from-username";
 import {
-  noSufficientArgumentError,
   allowCallStatus,
   statusToNumber,
   getPositionName,
@@ -15,6 +14,7 @@ import catchError from "./base_modules/catchError";
 import objectKeyRename from "./base_modules/objectKeyRename";
 import { OkPacketTypeGuard, selectTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";
+import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
 
 function checkStatusString(str: CallStatus) {
   try {

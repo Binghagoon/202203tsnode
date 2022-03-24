@@ -1,11 +1,8 @@
 import { RequestHandler } from "express";
 import { Executable } from "../types/types";
-import {
-  noSufficientArgumentError,
-  treatError,
-  connWithPromise,
-} from "./base_module";
 import catchError from "./base_modules/catchError";
+import connWithPromise from "./base_modules/conn_with_promise";
+import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
 import { OkPacketTypeGuard, selectTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
 
 const execute: Executable = async function (app, conn) {
