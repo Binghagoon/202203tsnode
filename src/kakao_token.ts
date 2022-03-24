@@ -1,7 +1,6 @@
 import { Executable, PathObject, TokenObject } from "./../types/types.d";
 import { RequestHandler } from "express";
 import * as sensitiveValue from "../data/sensitive-value.json";
-import { kakao_token as kakaoTokenOrigin } from "../data/sensitive-value.json";
 import * as fs from "fs";
 import * as curl from "./curl";
 import seoulTime from "./base_modules/seoulTime";
@@ -25,13 +24,13 @@ const WritePromise = (path: string, data: string) =>
       }
     })
   );
+  /**@deprecated */
 const newSensitive = (newKakaoToken: TokenObject) => {
   let newObject: any = { ...sensitiveValue };
   delete newObject.default;
   newObject.kakao_token = newKakaoToken;
   return newObject;
 };
-
 export const writeToken = async (newToken: any) => {
   if (!tokenObjectTypeGuard(newToken)) throw "Type mismatched.";
   for (const property in newToken) {
@@ -46,8 +45,7 @@ export const writeToken = async (newToken: any) => {
   if (typeof newToken.access_token == "number") {
     throw new Error("Why access token is number?500");
   }
-  const newSensitiveString = newSensitive(newToken);
-  const string = JSON.stringify(newSensitiveString, null, 2);
+  const string = JSON.stringify(newToken, null, 2);
   await WritePromise(data.getPath(), string);
   return newToken;
 };
@@ -102,6 +100,7 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
   refreshToken = kakaoToken.refresh_token;
 };
 
+/**@deprecated */
 export const doRefreshToken = async () => {
   const ts = seoulTime.getTimeStamp();
   const diff =
@@ -203,7 +202,7 @@ const execute: Executable = async (app, conn) => {
       console.log(data);
       res.send(data);
     });
-  kakaoToken = { ...kakaoTokenOrigin };
+  kakaoToken =data.getToken();
   verifyToken();
 
   app.post("/set-token", postSetToken);
