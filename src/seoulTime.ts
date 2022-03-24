@@ -6,10 +6,10 @@ const addSeconds = function (date: Date, diff?: number) {
   return newDate;
 };
 /** `diff` should be how much add seconds */
-const getSeoulTime = (diff?: number) => {
+const getTime = (diff?: number) => {
   return addSeconds(d, diff).toLocaleString(undefined, {
     timeZone: "Asia/Seoul",
   });
 };
 const getHour = () => (d.getUTCHours() + 9) % 24;
-export default { getSeoulTime, getHour };
+export default { getTime, getHour };

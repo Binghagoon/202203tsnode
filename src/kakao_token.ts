@@ -59,8 +59,8 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
   } else {
     console.log(
       `Kakao token can live for ${diff} seconds from now.
-      (Now is ${ts}, also as ${seoulTime.getSeoulTime()} in KST)
-      When time is ${seoulTime.getSeoulTime(diff)}, Token will die.`
+      (Now is ${ts}, also as ${seoulTime.getTime()} in KST)
+      When time is ${seoulTime.getTime(diff)}, Token will die.`
     );
     const timeOutWork = async () => {
       try {
@@ -76,7 +76,7 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
     };
     console.log(
       "Add event of refreshing token at %s in KST",
-      seoulTime.getSeoulTime(diff - 100)
+      seoulTime.getTime(diff - 100)
     );
     setTimeout(timeOutWork, (diff - 100) * 1000);
     const rdiff =
