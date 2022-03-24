@@ -10,6 +10,7 @@ import message from "./message";
 import kakaoToken from "./kakao_token";
 import { catchError } from "./base_module";
 import * as uuid from "./uuid";
+import { execSync } from "child_process";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
@@ -35,7 +36,7 @@ shellArgs.forEach((value, index, array) => {
           uuid.receiverToUuid["driver1"],
           uuid.receiverToUuid["driver2"]
         );
-      else  uuid.receiver.push(uuid.receiverToUuid[value]);
+      else uuid.receiver.push(uuid.receiverToUuid[value]);
     });
   }
 });
@@ -80,7 +81,7 @@ app.get("/", (req, res) =>
 //app.get("/get-location", serverFunction.GetLocation(conn));
 //app.post("/session-update", serverFunction.SessionUpdate(conn));
 
-const OpenPort = (portNumber: number)=>
+const OpenPort = (portNumber: number) =>
   new Promise<null>((resolve, reject) =>
     app
       .listen(portNumber, () => {
@@ -92,6 +93,16 @@ OpenPort(sensitive.port)
   .then(function () {
     console.log(`http server opened on port ${sensitive.port}`);
     console.log(`Database is ${sensitive.dbinfo.database}`);
+    try {
+      const revision = execSync("git rev-parse HEAD").toString().trim();
+      const branch = execSync("git rev-parse --abbrev-ref HEAD")
+        .toString()
+        .trim();
+      console.log(`Git hash: ${revision.substring(0, 6)} and Branch:${branch}`);
+    } catch (e) {
+      console.error(e);
+      console.log("Error on print git data. Please see stderr.");
+    }
   })
   .catch((e) => {
     throw e;
