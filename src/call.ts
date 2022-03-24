@@ -4,8 +4,6 @@
 import {
   allowCallStatus,
   statusToNumber,
-  getPositionName,
-  getPhoneAddress,
 } from "./base_module";
 import { sendKakaoMessage } from "./message";
 import { CallStatus, Executable } from "types/types";
@@ -15,6 +13,7 @@ import objectKeyRename from "./base_modules/objectKeyRename";
 import { OkPacketTypeGuard, selectTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
+import specific from "./base_modules/get_specific_data"
 
 function checkStatusString(str: CallStatus) {
   try {
@@ -53,9 +52,9 @@ const execute: Executable = async function (app, conn) {
       noSufficientArgumentError(params);
       let kakaoResult;
       try {
-        let departureName = await getPositionName(departureNo, conn);
-        let arrivalName = await getPositionName(arrivalNo, conn);
-        let phoneAddress = await getPhoneAddress(no, conn);
+        let departureName = await specific.getPositionName(departureNo, conn);
+        let arrivalName = await specific.getPositionName(arrivalNo, conn);
+        let phoneAddress = await specific.getPhoneAddress(no, conn);
         kakaoResult = await sendKakaoMessage({
           departure: departureName,
           arrival: arrivalName,
