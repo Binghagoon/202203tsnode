@@ -10,6 +10,7 @@ import { OkPacketTypeGuard } from "./base_modules/type_guards/query_results_type
 import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
 import tokenObjectTypeGuard from "./base_modules/type_guards/token_object";
+import data from"./base_modules/data"
 
 let refreshToken: string, accessToken: string, kakaoToken: TokenObject;
 const WritePromise = (path: string, data: string) =>
@@ -47,7 +48,7 @@ export const writeToken = async (newToken: any) => {
   }
   const newSensitiveString = newSensitive(newToken);
   const string = JSON.stringify(newSensitiveString, null, 2);
-  await WritePromise("../data/sensitive-value.json", string);
+  await WritePromise(data.getPath(), string);
   return newToken;
 };
 

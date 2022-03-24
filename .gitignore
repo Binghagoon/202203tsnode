@@ -3,3 +3,4 @@ sensitive-value.json
 build
 .vscode
 log
+deamon.sh

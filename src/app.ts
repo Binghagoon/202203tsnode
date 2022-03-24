@@ -11,6 +11,8 @@ import kakaoToken from "./kakao_token";
 import * as uuid from "./uuid";
 import { execSync } from "child_process";
 import catchError from "./base_modules/catchError";
+import data from "./base_modules/data";
+import seoulTime from "./base_modules/seoulTime";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
@@ -28,7 +30,7 @@ app.use(function (req, res, next) {
 });
 const shellArgs = process.argv.slice(2);
 shellArgs.forEach((value, index, array) => {
-  if (value == "--receiver") {
+  if (value == "--receiver" || value == "-rcv") {
     const receiverList = shellArgs.slice(index + 1);
     receiverList.forEach((value) => {
       if (value == "drivers")
@@ -36,8 +38,26 @@ shellArgs.forEach((value, index, array) => {
           uuid.receiverToUuid["driver1"],
           uuid.receiverToUuid["driver2"]
         );
-      else uuid.receiver.push(uuid.receiverToUuid[value]);
+      else {
+        let uu = uuid.receiverToUuid[value];
+        if (uu) uuid.receiver.push();
+      }
     });
+  } else if (value == "--port" || value == "-p") {
+    try {
+      data.setPort(parseInt(array[index + 1]));
+    } catch (e) {
+      console.log("Port number should be number whose value is integer.");
+      console.log(e);
+      console.error(e);
+    }
+  } else if (value == "--kakao-path" || value == "-kp") {
+    try {
+      data.setPath(array[index + 1]);
+    } catch (e) {
+      console.log(e);
+      console.error(e);
+    }
   }
 });
 
@@ -65,9 +85,7 @@ app.get("/", (req, res) =>
   catchError(res, async () => {
     let d = new Date();
     res.send(
-      "Server Alive!! It's time is " +
-        d.toLocaleString(undefined, { timeZone: "Asia/Seoul" }) +
-        " maybe this is KST.\n"
+      `Server Alive!! It's time is  ${seoulTime.getTime()}  maybe this is KST.\n`
     );
   })
 );
@@ -89,9 +107,9 @@ const OpenPort = (portNumber: number) =>
       })
       .on("error", reject)
   );
-OpenPort(sensitive.port)
+OpenPort(data.getPort())
   .then(function () {
-    console.log(`http server opened on port ${sensitive.port}`);
+    console.log(`http server opened on port ${data.getPort()}`);
     console.log(`Database is ${sensitive.dbinfo.database}`);
     try {
       const revision = execSync("git rev-parse HEAD").toString().trim();
@@ -105,7 +123,7 @@ OpenPort(sensitive.port)
     }
   })
   .catch((e) => {
-    console.log("Can`t open port %d",sensitive.port);
+    console.log("Can`t open port %d", data.getPort());
     throw e;
   });
 
