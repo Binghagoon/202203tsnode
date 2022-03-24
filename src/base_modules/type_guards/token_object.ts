@@ -12,3 +12,4 @@ export const tokenObjectTypeGuard = function (x: any): x is TokenObject {
     isAllString(x.refresh_token, x.scope, x.access_token, x.refresh_time_stamp)
   );
 };
+export default tokenObjectTypeGuard;
