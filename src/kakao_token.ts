@@ -12,6 +12,7 @@ import {
 } from "./base_module";
 import * as curl from "./curl";
 import { tokenObjectTypeGuard } from "./type_guards";
+import seoulTime from "./seoulTime";
 
 let refreshToken: string, accessToken: string, kakaoToken: TokenObject;
 const WritePromise = (path: string, data: string) =>
@@ -57,8 +58,21 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
     console.log("Kakao token has been expired before %d seconds.", -diff);
   } else {
     console.log(
-      `Kakao token can live for ${diff} seconds from now. (Now is ${ts}.)`
+      `Kakao token can live for ${diff} seconds from now.
+      (Now is ${ts}, also ${seoulTime.getSeoulTime()} in KST)`
     );
+    const timeOutWork = async () => {
+      try {
+        console.log("Refreshing token.");
+        await doRefreshToken();
+        await verifyToken();
+      } catch (e) {
+        console.log("Error on refreshing. Please see stderr.");
+        console.error(e);
+        throw e;
+      }
+    };
+    setTimeout(timeOutWork, diff * 1000);
     const rdiff =
       kakaoToken.time_stamp + kakaoToken.refresh_token_expires_in - ts;
     console.log(`Refresh token can live for ${rdiff} seconds from now.`);
@@ -82,12 +96,8 @@ export const doRefreshToken = async () => {
     return;
   }
   let data = await curl.command("getToken"); //e.g: {"access_token":"rqun4rzjndO2Ns48epBZCXyTNhwwy5M51X8HSgorDNQAAAF_tIb4Dg","token_type":"bearer","expires_in":21599}
-  const isTokenObject = (
-    data: string | object | undefined
-  ): data is TokenObject => {
-    return (data as TokenObject).token_type !== undefined;
-  };
-  if (isTokenObject(data)) {
+
+  if (tokenObjectTypeGuard(data)) {
     try {
       if (data.error) {
         console.log("Error occurred.");
@@ -102,7 +112,10 @@ export const doRefreshToken = async () => {
     } catch (e) {
       console.log("Error occurred while updating token.");
       debugger;
+      throw e;
     }
+  } else {
+    throw new Error("Type mismatched.500");
   }
 };
 
