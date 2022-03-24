@@ -58,9 +58,9 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
     console.log("Kakao token has been expired before %d seconds.", -diff);
   } else {
     console.log(
-      `Kakao token can live for ${diff} seconds from now.
-      (Now is ${ts}, also as ${seoulTime.getTime()} in KST)
-      When time is ${seoulTime.getTime(diff)}, Token will die.`
+      `Kakao token can live for ${diff} seconds from now.` +
+        `\n\t(Now is ${ts}, also as ${seoulTime.getTime()} in KST)` +
+        `\n\tWhen time is ${seoulTime.getTime(diff)}, Token will die.`
     );
     const timeOutWork = async () => {
       try {
@@ -85,10 +85,10 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
   }
   if (isNaN(diff) || diff < 1000 || forceRefresh) {
     console.log("Getting new tokens...");
-    try{
+    try {
       await doRefreshToken();
       await verifyToken();
-    } catch(e){
+    } catch (e) {
       console.log("Error on refreshing. Please see stderr.");
       console.error(e);
       debugger;
