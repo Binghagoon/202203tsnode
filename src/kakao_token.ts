@@ -3,9 +3,7 @@ import { RequestHandler } from "express";
 import * as sensitiveValue from "../data/sensitive-value.json";
 import { kakao_token as kakaoTokenOrigin } from "../data/sensitive-value.json";
 import * as fs from "fs";
-import {
-  getTimeStamp,
-} from "./base_module";
+
 import * as curl from "./curl";
 import { tokenObjectTypeGuard } from "./type_guards";
 import seoulTime from "./base_modules/seoulTime";
@@ -20,6 +18,7 @@ const WritePromise = (path: string, data: string) =>
     fs.writeFile(path, data, (err) => {
       if (err) {
         debugger;
+        console.error(err);
         reject(err);
       } else {
         resolve(data);
@@ -42,7 +41,7 @@ export const writeToken = async (newToken: any) => {
     }
     newToken[property] = parseInt(strValue);
   }
-  const ts = getTimeStamp();
+  const ts = seoulTime.getTimeStamp();
   newToken.time_stamp = ts;
   if (typeof newToken.access_token == "number") {
     throw new Error("Why access token is number?500");
@@ -52,7 +51,7 @@ export const writeToken = async (newToken: any) => {
 };
 
 export const verifyToken = async (forceRefresh: boolean = false) => {
-  const ts = getTimeStamp();
+  const ts = seoulTime.getTimeStamp();
   const diff = kakaoToken.time_stamp + kakaoToken.expires_in - ts;
   if (diff <= 0) {
     console.log("Kakao token has been expired before %d seconds.", -diff);
@@ -102,7 +101,7 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
 };
 
 export const doRefreshToken = async () => {
-  const ts = getTimeStamp();
+  const ts = seoulTime.getTimeStamp();
   const diff =
     kakaoToken.refresh_time_stamp + kakaoToken.refresh_token_expires_in - ts;
   if (diff < 0) {
@@ -143,7 +142,7 @@ const execute: Executable = async (app, conn) => {
       console.log(
         `Access Token: ${accessToken}\nRefresh Token: ${refreshToken}`
       );
-      const ts = getTimeStamp();
+      const ts = seoulTime.getTimeStamp();
       req.body.refresh_time_stamp = ts;
       await writeToken(req.body);
       res.status(200).send({
@@ -168,7 +167,7 @@ const execute: Executable = async (app, conn) => {
       const param = [
         body.kakao_id,
         body.refresh_token,
-        getTimeStamp(),
+        seoulTime.getTimeStamp(),
         body.access_token,
         body.expires_in,
       ];
@@ -212,3 +211,4 @@ const execute: Executable = async (app, conn) => {
   app.post("/refresh-token", postRefreshToken);
 };
 export default execute;
+

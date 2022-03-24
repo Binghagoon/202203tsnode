@@ -12,4 +12,5 @@ const getTime = (diff?: number) => {
   });
 };
 const getHour = () => (d.getUTCHours() + 9) % 24;
-export default { getTime, getHour };
+const getTimeStamp = () => Math.floor(Date.now() / 1000);
+export default { getTime, getHour, getTimeStamp };

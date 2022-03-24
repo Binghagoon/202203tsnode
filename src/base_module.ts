@@ -78,7 +78,6 @@ const ifErrorRaise500 = async (
   }
 };
 
-
 //type GetUserData = (arg: any, conn:Connection) => any;
 
 const getPositionName = async function (
@@ -109,8 +108,6 @@ const getPhoneAddress = async function (
   }
 };
 
-const getTimeStamp = () => Math.floor(Date.now() / 1000);
-
 const allowCallStatus: CallStatus[] = [
   "waiting",
   "canceled",
@@ -129,7 +126,6 @@ const statusToNumber: { [status in CallStatus]: number } = {
 
 export {
   treatError,
-  getTimeStamp,
   raiseError as raise500,
   ifErrorRaise500 as raiseInternalServerError,
   ifErrorRaise500 as tryCatch,
