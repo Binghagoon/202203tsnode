@@ -46,6 +46,7 @@ export type ErrorKakaoResult = {
   msg: string;
   code: number;
 };
+export type QueryResults = OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[];
 
-type CommandType = "memo" | "sendMessage" | "friends" | "getToken" | "isValid";
-type Curl = { exe: string; headers: string[]; data: string[] };
+export type CommandType = "memo" | "sendMessage" | "friends" | "getToken" | "isValid";
+export type Curl = { exe: string; headers: string[]; data: string[] };

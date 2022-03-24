@@ -5,8 +5,9 @@ import {
   RowDataPacket,
   OkPacket,
   ResultSetHeader,
+  FieldPacket,
 } from "mysql2";
-import { CallStatus, ErrorKakaoResult } from "../types/types";
+import { CallStatus, ErrorKakaoResult, QueryResults } from "../types/types";
 import moment from "moment-timezone";
 
 const objectKeyRename = (
@@ -185,12 +186,7 @@ const noSufficientArgumentError = (
 };
 
 const selectTypeGuard = (
-  results:
-    | OkPacket
-    | ResultSetHeader
-    | RowDataPacket[]
-    | RowDataPacket[][]
-    | OkPacket[]
+  results: QueryResults | [QueryResults, any]
 ): results is RowDataPacket[] => {
   return (
     Array.isArray(results) &&
@@ -199,26 +195,20 @@ const selectTypeGuard = (
   );
 };
 const OkPacketTypeGuard = (
-  results:
-    | OkPacket
-    | ResultSetHeader
-    | RowDataPacket[]
-    | RowDataPacket[][]
-    | OkPacket[]
+  results: QueryResults | [QueryResults, any]
 ): results is OkPacket => {
   return !Array.isArray(results) && "affectedRows" in results;
 };
 const connWithPromise = (
   conn: Connection,
   sql: string,
-  params: any[]
-): Promise<
-  OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[]
-> =>
+  params: any[],
+  getField = false
+): Promise<QueryResults | [QueryResults, FieldPacket[]]> =>
   new Promise(function (resolve, reject) {
-    conn.query(sql, params, (err, results) => {
+    conn.query(sql, params, (err, results, field) => {
       if (err) reject(err);
-      else resolve(results);
+      else resolve(getField ? [results, field] : results);
     });
   });
 //type GetUserData = (arg: any, conn:Connection) => any;
