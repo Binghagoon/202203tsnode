@@ -11,15 +11,6 @@ import { CallStatus, QueryResults } from "../types/types";
 import moment from "moment-timezone";
 import isError from "./base_modules/type_guards/isError";
 
-const objectKeyRename = (
-  obj: { [x: string]: any },
-  originalName: string,
-  changedName: string
-): void => {
-  obj[changedName] = obj[originalName];
-  delete obj[originalName];
-};
-
 /**
  * @deprecated
  */
@@ -109,20 +100,6 @@ const noSufficientArgumentError = (
   return false;
 };
 
-const selectTypeGuard = (
-  results: QueryResults | [QueryResults, any]
-): results is RowDataPacket[] => {
-  return (
-    Array.isArray(results) &&
-    !("affectedRow" in results[0]) &&
-    !Array.isArray(results[0])
-  );
-};
-const OkPacketTypeGuard = (
-  results: QueryResults | [QueryResults, any]
-): results is OkPacket => {
-  return !Array.isArray(results) && "affectedRows" in results;
-};
 const connWithPromise = (
   conn: Connection,
   sql: string,
@@ -184,7 +161,6 @@ const statusToNumber: { [status in CallStatus]: number } = {
 };
 
 export {
-  objectKeyRename,
   treatError,
   noSufficientArgumentError,
   connWithPromise,
@@ -195,8 +171,6 @@ export {
   ifErrorRaise500,
   getPhoneAddress,
   getPositionName,
-  selectTypeGuard,
-  OkPacketTypeGuard,
   allowCallStatus,
   statusToNumber,
 };

@@ -8,14 +8,13 @@ import express, {
 import Connection from "mysql2/typings/mysql/lib/Connection";
 import { Executable, PathObject } from "../types/types";
 import {
-  objectKeyRename,
   noSufficientArgumentError,
   connWithPromise,
-  selectTypeGuard,
-  OkPacketTypeGuard,
 } from "./base_module";
 import * as sensitiveValue from "../data/sensitive-value.json";
 import catchError from "./base_modules/catchError";
+import objectKeyRename from "./base_modules/objectKeyRename";
+import {OkPacketTypeGuard, selectTypeGuard} from "./base_modules/type_guards/query_results_type_guards";
 
 const execute: Executable = async function (app, conn) {
   const getId: RequestHandler = (req, res) =>

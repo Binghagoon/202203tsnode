@@ -4,10 +4,9 @@ import {
   noSufficientArgumentError,
   treatError,
   connWithPromise,
-  selectTypeGuard,
-  OkPacketTypeGuard,
 } from "./base_module";
 import catchError from "./base_modules/catchError";
+import { OkPacketTypeGuard, selectTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
 
 const execute: Executable = async function (app, conn) {
   const getSignIn: RequestHandler = (req, res) =>

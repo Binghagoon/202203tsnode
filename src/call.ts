@@ -2,20 +2,19 @@
 
 //import getid from "./get-id-from-username";
 import {
-  objectKeyRename,
   noSufficientArgumentError,
   allowCallStatus,
   statusToNumber,
   getPositionName,
   getPhoneAddress,
   connWithPromise,
-  selectTypeGuard,
-  OkPacketTypeGuard,
 } from "./base_module";
 import { sendKakaoMessage } from "./message";
 import { CallStatus, Executable } from "types/types";
 import { RequestHandler } from "express";
 import catchError from "./base_modules/catchError";
+import objectKeyRename from "./base_modules/objectKeyRename";
+import { OkPacketTypeGuard, selectTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
 
 function checkStatusString(str: CallStatus) {
   try {
