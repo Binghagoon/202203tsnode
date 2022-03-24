@@ -8,7 +8,6 @@ import user from "./user";
 import authentication from "./authentication";
 import message from "./message";
 import kakaoToken from "./kakao_token";
-import { Executable } from "../types/types";
 import { catchError } from "./base_module";
 import * as uuid from "./uuid";
 
@@ -42,7 +41,7 @@ shellArgs.forEach((value, index, array) => {
 });
 
 //var serverFunction = require("./open_server");
-const executableJS: Executable[] = [
+const executableJS = [
   recordPositions,
   userLocation,
   call,
