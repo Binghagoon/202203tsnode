@@ -12,7 +12,7 @@ import {
 } from "./base_module";
 import * as curl from "./curl";
 import { tokenObjectTypeGuard } from "./type_guards";
-import seoulTime from "./seoulTime";
+import seoulTime from "./base_modules/seoulTime";
 
 let refreshToken: string, accessToken: string, kakaoToken: TokenObject;
 const WritePromise = (path: string, data: string) =>
@@ -81,7 +81,9 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
     setTimeout(timeOutWork, (diff - 100) * 1000);
     const rdiff =
       kakaoToken.time_stamp + kakaoToken.refresh_token_expires_in - ts;
-    console.log(`Refresh token can live before ${seoulTime.getTime(rdiff)} in KST.`);
+    console.log(
+      `Refresh token can live before ${seoulTime.getTime(rdiff)} in KST.`
+    );
   }
   if (isNaN(diff) || diff < 1000 || forceRefresh) {
     console.log("Getting new tokens...");

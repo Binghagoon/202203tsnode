@@ -1,5 +1,5 @@
 import sensitive from "../data/sensitive-value.json";
-import seoul from "./seoulTime";
+import seoul from "./base_modules/seoulTime";
 export const receiverToUuid: { [user: string]: string } = {
   minseong: sensitive.friends.elements[0].uuid,
   driver1: sensitive.friends.elements[1].uuid,
