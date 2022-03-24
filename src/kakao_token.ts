@@ -3,25 +3,24 @@ import { RequestHandler } from "express";
 import * as sensitiveValue from "../data/sensitive-value.json";
 import { kakao_token as kakaoTokenOrigin } from "../data/sensitive-value.json";
 import * as fs from "fs";
-
 import * as curl from "./curl";
-import { tokenObjectTypeGuard } from "./type_guards";
 import seoulTime from "./base_modules/seoulTime";
 import catchError from "./base_modules/catchError";
 import { OkPacketTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
+import tokenObjectTypeGuard from "./base_modules/type_guards/token_object";
 
 let refreshToken: string, accessToken: string, kakaoToken: TokenObject;
 const WritePromise = (path: string, data: string) =>
-  new Promise<string>((resolve, reject) =>
+  new Promise<boolean>((resolve, reject) =>
     fs.writeFile(path, data, (err) => {
       if (err) {
         debugger;
         console.error(err);
         reject(err);
       } else {
-        resolve(data);
+        resolve(true);
       }
     })
   );
@@ -46,8 +45,10 @@ export const writeToken = async (newToken: any) => {
   if (typeof newToken.access_token == "number") {
     throw new Error("Why access token is number?500");
   }
-  const string = JSON.stringify(newSensitive(newToken), null, 2);
-  return await WritePromise("./data/sensitive-value.json", string);
+  const newSensitiveString = newSensitive(newToken);
+  const string = JSON.stringify(newSensitiveString, null, 2);
+  await WritePromise("../data/sensitive-value.json", string);
+  return newToken;
 };
 
 export const verifyToken = async (forceRefresh: boolean = false) => {
@@ -124,13 +125,12 @@ export const doRefreshToken = async () => {
       kakaoToken.time_stamp = data.time_stamp;
       data = kakaoToken;
       let writeResult = await writeToken(data);
+      if (writeResult) return writeResult;
+      else console.log("There is no Write Result.");
     } catch (e) {
       console.log("Error occurred while updating token.");
-      debugger;
-      throw e;
+      console.error(e);
     }
-  } else {
-    throw new Error("Type mismatched.500");
   }
 };
 
@@ -211,4 +211,3 @@ const execute: Executable = async (app, conn) => {
   app.post("/refresh-token", postRefreshToken);
 };
 export default execute;
-
