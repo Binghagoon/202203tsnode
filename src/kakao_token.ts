@@ -59,7 +59,8 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
   } else {
     console.log(
       `Kakao token can live for ${diff} seconds from now.
-      (Now is ${ts}, also ${seoulTime.getSeoulTime()} in KST)`
+      (Now is ${ts}, also as ${seoulTime.getSeoulTime()} in KST)
+      When time is ${seoulTime.getSeoulTime(diff)}, Token will die.`
     );
     const timeOutWork = async () => {
       try {
@@ -69,17 +70,30 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
       } catch (e) {
         console.log("Error on refreshing. Please see stderr.");
         console.error(e);
+        debugger;
         throw e;
       }
     };
-    setTimeout(timeOutWork, diff * 1000);
+    console.log(
+      "Add event of refreshing token at %s in KST",
+      seoulTime.getSeoulTime(diff - 100)
+    );
+    setTimeout(timeOutWork, (diff - 100) * 1000);
     const rdiff =
       kakaoToken.time_stamp + kakaoToken.refresh_token_expires_in - ts;
     console.log(`Refresh token can live for ${rdiff} seconds from now.`);
   }
   if (isNaN(diff) || diff < 1000 || forceRefresh) {
     console.log("Getting new tokens...");
-    await doRefreshToken();
+    try{
+      await doRefreshToken();
+      await verifyToken();
+    } catch(e){
+      console.log("Error on refreshing. Please see stderr.");
+      console.error(e);
+      debugger;
+      throw e;
+    }
   }
   accessToken = kakaoToken.access_token;
   refreshToken = kakaoToken.refresh_token;
