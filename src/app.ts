@@ -105,6 +105,7 @@ OpenPort(sensitive.port)
     }
   })
   .catch((e) => {
+    console.log("Can`t open port %d",sensitive.port);
     throw e;
   });
 
