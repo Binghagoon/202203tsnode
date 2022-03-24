@@ -1,82 +1,9 @@
-import express, { Response } from "express";
-import {
-  QueryError,
-  Connection,
-  RowDataPacket,
-  OkPacket,
-  ResultSetHeader,
-  FieldPacket,
-} from "mysql2";
-import { CallStatus, QueryResults } from "../types/types";
-import moment from "moment-timezone";
-import isError from "./base_modules/type_guards/isError";
-import connWithPromise from "./base_modules/conn_with_promise";
 
-/**
- * @deprecated
- */
-const treatError = (
-  err: QueryError | null,
-  res: Response,
-  location?: string
-): number => {
-  if (!err) return 0;
-  console.log(err.stack);
-  if (res) {
-    res.send({
-      status: "error",
-      errorMessage: "not defined error",
-    });
-  }
-  debugger;
-  return 1;
-};
-/**
- *
- * @param res
- * @param reason
- * @param error
- * @param code
- * @deprecated
- */
-const raiseError = (
-  res: Response,
-  reason?: string,
-  error?: Error | any,
-  code?: number
-) => {
-  console.log("Error occurred time is %s", moment().tz("Asia/Seoul").format());
-  if (reason) console.log("Get an error because %s", reason);
-  if (error) {
-    if (isError(error)) {
-      console.log(`Error object says "${error.message}"`);
-    } else if (typeof error == "string") {
-      console.log(`Error string says "${error}"`);
-    }
-    console.error(error);
-  }
-  if (!code) {
-    res
-      .status(500)
-      .send({ status: "error", errorMessage: "Internal Server Error" });
-  } else {
-    res.status(code).send({ status: "error", errorMessage: reason });
-  }
-};
-/**
- * @deprecated
- */
-//const raiseHTTPError(res:Response, code:number,option?:{reason?:string,}) //TBD
-const ifErrorRaise500 = async (
-  res: Response,
-  callback: Function | ((...args: any) => Promise<any>)
-) => {
-  try {
-    return await callback();
-  } catch (e) {
-    raiseError(res, undefined, e);
-  }
-};
+import {
+  Connection,
+} from "mysql2";
+import { CallStatus } from "../types/types";
+import connWithPromise from "./base_modules/conn_with_promise";
 
 //type GetUserData = (arg: any, conn:Connection) => any;
 
@@ -125,11 +52,6 @@ const statusToNumber: { [status in CallStatus]: number } = {
 };
 
 export {
-  treatError,
-  raiseError as raise500,
-  ifErrorRaise500 as raiseInternalServerError,
-  ifErrorRaise500 as tryCatch,
-  ifErrorRaise500,
   getPhoneAddress,
   getPositionName,
   allowCallStatus,
