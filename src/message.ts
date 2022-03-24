@@ -6,9 +6,8 @@ import { Executable, SendKakaoMessageOptions } from "types/types";
 import { command } from "./curl";
 import * as sensitiveValue from "../data/sensitive-value.json";
 import { doRefreshToken } from "./kakao_token";
-import { ErrorKakaoResult } from "../types/types";
 import catchError from "./base_modules/catchError";
-import { isErrorKakaoResult } from "./base_modules/type_guards/isKakaoResultError";
+import { isErrorKakaoResult } from "./base_modules/type_guards/KakaoResultError";
 
 function friendList() {
   return command("friends");

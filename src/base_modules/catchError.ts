@@ -1,7 +1,7 @@
-import moment from "moment";
-import isError from "./type_guards/isError";
-import isQueryError from "./type_guards/isQueryError";
+import isError from "./type_guards/Error";
+import isQueryError from "./type_guards/QueryError";
 import { Response } from "express";
+import seoul from "./seoulTime";
 
 /**
  * message string property in Error Object must have 3-digit end of string which is HTTP error code.
@@ -21,12 +21,11 @@ const catchError = async (
   try {
     return await callback(...args);
   } catch (e) {
-    let message: string, code: number, stack: string, errorObject: Error;
+    let message: string, code: number, stack: string;
     message = "Unknown error";
     code = 500;
     stack = "There is no stack.";
-    let seoulTime = moment().tz("Asia/Seoul").format();
-    seoulTime = seoulTime.slice(0, -6); //Delete +09:00
+    const seoulTime = seoul.getTime();
     console.error("\n-------Error Print");
     if (isQueryError(e)) {
       console.error(`Query error name: ${e.name}`);
@@ -70,7 +69,6 @@ const catchError = async (
       `Error occurred: {\n  Time(in KST):${seoulTime},\n  Error: ${message},\n  Code:${code}\n}`
     );
     res.status(code).send({ status: "error", errorMessage: message });
-    return null;
   }
 };
 export default catchError;
