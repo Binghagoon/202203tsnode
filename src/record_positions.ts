@@ -2,9 +2,9 @@
 
 import { Executable } from "../types/types";
 import { RequestHandler } from "express";
-import { connWithPromise } from "./base_module";
 import catchError from "./base_modules/catchError";
 import {selectTypeGuard} from "./base_modules/type_guards/query_results_type_guards";
+import connWithPromise from "./base_modules/conn_with_promise";
 
 const execute: Executable = async (app, conn) => {
   const getRecordPositions: RequestHandler = (req, res) =>

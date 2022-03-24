@@ -7,7 +7,6 @@ import {
   statusToNumber,
   getPositionName,
   getPhoneAddress,
-  connWithPromise,
 } from "./base_module";
 import { sendKakaoMessage } from "./message";
 import { CallStatus, Executable } from "types/types";
@@ -15,6 +14,7 @@ import { RequestHandler } from "express";
 import catchError from "./base_modules/catchError";
 import objectKeyRename from "./base_modules/objectKeyRename";
 import { OkPacketTypeGuard, selectTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
+import connWithPromise from "./base_modules/conn_with_promise";
 
 function checkStatusString(str: CallStatus) {
   try {

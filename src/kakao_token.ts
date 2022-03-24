@@ -4,7 +4,6 @@ import * as sensitiveValue from "../data/sensitive-value.json";
 import { kakao_token as kakaoTokenOrigin } from "../data/sensitive-value.json";
 import * as fs from "fs";
 import {
-  connWithPromise,
   getTimeStamp,
   noSufficientArgumentError,
 } from "./base_module";
@@ -13,6 +12,7 @@ import { tokenObjectTypeGuard } from "./type_guards";
 import seoulTime from "./base_modules/seoulTime";
 import catchError from "./base_modules/catchError";
 import { OkPacketTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
+import connWithPromise from "./base_modules/conn_with_promise";
 
 let refreshToken: string, accessToken: string, kakaoToken: TokenObject;
 const WritePromise = (path: string, data: string) =>
