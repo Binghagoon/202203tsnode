@@ -2,13 +2,18 @@
 
 import { Executable } from "../types/types";
 import { RequestHandler } from "express";
-import { catchError, connWithPromise, selectTypeGuard } from "./base_module";
+import { connWithPromise, selectTypeGuard } from "./base_module";
+import catchError from "./base_modules/catchError";
 
 const execute: Executable = async (app, conn) => {
   const getRecordPositions: RequestHandler = (req, res) =>
     catchError(res, async () => {
-      const results = await connWithPromise(conn,"SELECT * FROM record_position;",[]);
-      if(!selectTypeGuard(results)){
+      const results = await connWithPromise(
+        conn,
+        "SELECT * FROM record_position;",
+        []
+      );
+      if (!selectTypeGuard(results)) {
         throw "Type mismatched";
       }
       results.map(function (value, index, array) {

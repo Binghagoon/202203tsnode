@@ -3,12 +3,12 @@
 import { Executable } from "../types/types";
 import { RequestHandler } from "express";
 import {
-  catchError,
   connWithPromise,
   noSufficientArgumentError,
   OkPacketTypeGuard,
   selectTypeGuard,
 } from "./base_module";
+import catchError from "./base_modules/catchError";
 
 const execute: Executable = async (app, conn) => {
   const locationInsert: RequestHandler = async (req, res) =>

@@ -4,10 +4,10 @@ import {
   noSufficientArgumentError,
   treatError,
   connWithPromise,
-  catchError,
   selectTypeGuard,
   OkPacketTypeGuard,
 } from "./base_module";
+import catchError from "./base_modules/catchError";
 
 const execute: Executable = async function (app, conn) {
   const getSignIn: RequestHandler = (req, res) =>
@@ -32,7 +32,7 @@ const execute: Executable = async function (app, conn) {
         res.send({
           role: result.role,
           id: result.id,
-          realname:result.realname
+          realname: result.realname,
         });
       }
     });

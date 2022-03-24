@@ -10,12 +10,12 @@ import {
   getPhoneAddress,
   connWithPromise,
   selectTypeGuard,
-  catchError,
   OkPacketTypeGuard,
 } from "./base_module";
 import { sendKakaoMessage } from "./message";
 import { CallStatus, Executable } from "types/types";
 import { RequestHandler } from "express";
+import catchError from "./base_modules/catchError";
 
 function checkStatusString(str: CallStatus) {
   try {
@@ -66,9 +66,9 @@ const execute: Executable = async function (app, conn) {
         console.log("Error occurred while sending kakao message.");
         console.log(e);
         kakaoResult = {
-          status:"error",
-          errorMessage:e
-        }
+          status: "error",
+          errorMessage: e,
+        };
       }
       const results = await connWithPromise(conn, sql, params);
       if (!OkPacketTypeGuard(results)) {

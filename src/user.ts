@@ -12,10 +12,10 @@ import {
   noSufficientArgumentError,
   connWithPromise,
   selectTypeGuard,
-  catchError,
   OkPacketTypeGuard,
 } from "./base_module";
 import * as sensitiveValue from "../data/sensitive-value.json";
+import catchError from "./base_modules/catchError";
 
 const execute: Executable = async function (app, conn) {
   const getId: RequestHandler = (req, res) =>

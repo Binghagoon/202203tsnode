@@ -3,11 +3,12 @@
 let accessToken: String, refreshToken: String;
 import { RequestHandler } from "express";
 import { Executable, SendKakaoMessageOptions } from "types/types";
-import { catchError, isErrorKakaoResult } from "./base_module";
 import { command } from "./curl";
 import * as sensitiveValue from "../data/sensitive-value.json";
 import { doRefreshToken } from "./kakao_token";
 import { ErrorKakaoResult } from "../types/types";
+import catchError from "./base_modules/catchError";
+import { isErrorKakaoResult } from "./base_modules/type_guards/isKakaoResultError";
 
 function friendList() {
   return command("friends");

@@ -8,9 +8,9 @@ import user from "./user";
 import authentication from "./authentication";
 import message from "./message";
 import kakaoToken from "./kakao_token";
-import { catchError } from "./base_module";
 import * as uuid from "./uuid";
 import { execSync } from "child_process";
+import catchError from "./base_modules/catchError";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
