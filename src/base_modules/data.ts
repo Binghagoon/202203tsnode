@@ -1,6 +1,6 @@
 import { TokenObject } from "types/types";
 import { exec } from "child_process";
-import {writeFile} from "fs";
+import { writeFile } from "fs";
 import tokenObjectTypeGuard from "./type_guards/token_object";
 import seoulTime from "./seoulTime";
 import { command } from "../curl";
@@ -10,6 +10,28 @@ let path: string | null = null;
 let kakaoToken: TokenObject | null = null;
 let tokenPromise: Promise<TokenObject>;
 
+const catToken = () =>
+  new Promise<TokenObject>((resolve, reject) =>
+    exec("cat " + path, (error, stdout, stderr) => {
+      if (error) {
+        console.log(error);
+        reject(new Error("Error occurred while reading token."));
+      }
+      if (stderr) console.log(`stderr while token reading:${stderr}`);
+      try {
+        kakaoToken = JSON.parse(stdout);
+        if (!kakaoToken) reject(new Error("Parse didn't work perfectly."));
+        else {
+          console.log(`kakao token read well.\nvalues are ${stdout}`);
+          resolve(kakaoToken);
+        }
+      } catch (e) {
+        console.log(e);
+        console.error(e);
+        reject(e);
+      }
+    })
+  );
 const setPort = (num: number) => {
   if (port) throw new Error("Port number can change only once.");
   port = num;
@@ -23,27 +45,7 @@ const setPath = (arg: string) => {
 
   //Verify path TBD
   path = arg;
-  tokenPromise = new Promise((resolve, reject) =>
-    exec("cat " + path, (error, stdout, stderr) => {
-      if (error) {
-        console.log(error);
-        reject(new Error("Error occurred while reading token."));
-      }
-      console.log(`stderr while token reading:${stderr}`);
-      try {
-        kakaoToken = JSON.parse(stdout);
-        if (!kakaoToken) reject(new Error("Parse didn't work perfectly."));
-        else {
-          console.log(`kakao token read well. values are ${stdout}`);
-          resolve(kakaoToken);
-        }
-      } catch (e) {
-        console.log(e);
-        console.error(e);
-        reject(e);
-      }
-    })
-  );
+  tokenPromise = catToken().then((value) => (kakaoToken = value));
 };
 const getPath = () => {
   if (path) return path;
@@ -56,8 +58,24 @@ const getToken = () => {
     return newToken as TokenObject;
   } else return tokenPromise;
 };
+/** If there is newer token function returns `true`. */
+const getNewerTokenFromFile = async () => {
+  if (!kakaoToken) {
+    console.log("There is no token. This is not expected.");
+    kakaoToken = await tokenPromise;
+    if (!kakaoToken) throw new Error("There is no kakao token.");
+    return true;
+  }
+  const newToken = await catToken();
+  if (kakaoToken.access_token == newToken.access_token) {
+    return false;
+  } else {
+    kakaoToken = newToken;
+    return true;
+  }
+};
 /** `token` will be newer token and if `undefined` will run commend for get newer token.*/
-const accessTokenRefresh = async (token?: string, timeStamp?: number) => {
+const accessTokenRefresh = (token?: string, timeStamp?: number) => {
   if (!token) {
     command("getToken")
       .then((value) => {
@@ -92,6 +110,7 @@ export default {
   getPath,
   getToken,
   doRefresh,
+  getNewerTokenFromFile,
 };
 
 //to be Object
