@@ -40,7 +40,7 @@ shellArgs.forEach((value, index, array) => {
         );
       else {
         let uu = uuid.receiverToUuid[value];
-        if (uu) uuid.receiver.push();
+        if (uu) uuid.receiver.push(uu);
       }
     });
   } else if (value == "--port" || value == "-p") {

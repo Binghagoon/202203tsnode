@@ -9,45 +9,15 @@ import { OkPacketTypeGuard } from "./base_modules/type_guards/query_results_type
 import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
 import tokenObjectTypeGuard from "./base_modules/type_guards/token_object";
-import data from "./base_modules/data";
+import bsData from "./base_modules/data";
 
 let refreshToken: string, accessToken: string, kakaoToken: TokenObject;
-const WritePromise = (path: string, data: string) =>
-  new Promise<boolean>((resolve, reject) =>
-    fs.writeFile(path, data, (err) => {
-      if (err) {
-        debugger;
-        console.error(err);
-        reject(err);
-      } else {
-        resolve(true);
-      }
-    })
-  );
 /**@deprecated */
 const newSensitive = (newKakaoToken: TokenObject) => {
   let newObject: any = { ...sensitiveValue };
   delete newObject.default;
   newObject.kakao_token = newKakaoToken;
   return newObject;
-};
-export const writeToken = async (newToken: any) => {
-  if (!tokenObjectTypeGuard(newToken)) throw "Type mismatched.";
-  for (const property in newToken) {
-    const strValue = newToken[property];
-    if (isNaN(parseInt(strValue))) {
-      continue;
-    }
-    newToken[property] = parseInt(strValue);
-  }
-  const ts = seoulTime.getTimeStamp();
-  newToken.time_stamp = ts;
-  if (typeof newToken.access_token == "number") {
-    throw new Error("Why access token is number?500");
-  }
-  const string = JSON.stringify(newToken, null, 2);
-  await WritePromise(data.getPath(), string);
-  return newToken;
 };
 
 export const verifyToken = async (forceRefresh: boolean = false) => {
@@ -64,7 +34,7 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
     const timeOutWork = async () => {
       try {
         console.log("Refreshing token.");
-        await doRefreshToken();
+        await bsData.doRefresh();
         await verifyToken();
       } catch (e) {
         console.log("Error on refreshing. Please see stderr.");
@@ -87,7 +57,7 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
   if (isNaN(diff) || diff < 1000 || forceRefresh) {
     console.log("Getting new tokens...");
     try {
-      await doRefreshToken();
+      await bsData.doRefresh();
       await verifyToken();
     } catch (e) {
       console.log("Error on refreshing. Please see stderr.");
@@ -100,58 +70,11 @@ export const verifyToken = async (forceRefresh: boolean = false) => {
   refreshToken = kakaoToken.refresh_token;
 };
 
-/**@deprecated */
-export const doRefreshToken = async () => {
-  const ts = seoulTime.getTimeStamp();
-  const diff =
-    kakaoToken.refresh_time_stamp + kakaoToken.refresh_token_expires_in - ts;
-  if (diff < 0) {
-    console.log(
-      "Refresh token has been expired too. Please get with Kakao log in."
-    );
-    return;
-  }
-  let data = await curl.command("getToken"); //e.g: {"access_token":"rqun4rzjndO2Ns48epBZCXyTNhwwy5M51X8HSgorDNQAAAF_tIb4Dg","token_type":"bearer","expires_in":21599}
-
-  if (tokenObjectTypeGuard(data)) {
-    try {
-      if (data.error) {
-        console.log("Error occurred.");
-        console.log(data);
-        return;
-      }
-      data.time_stamp = ts;
-      kakaoToken.access_token = data.access_token;
-      kakaoToken.time_stamp = data.time_stamp;
-      data = kakaoToken;
-      let writeResult = await writeToken(data);
-      if (writeResult) return writeResult;
-      else console.log("There is no Write Result.");
-    } catch (e) {
-      console.log("Error occurred while updating token.");
-      console.error(e);
-    }
-  }
-};
 
 const execute: Executable = async (app, conn) => {
-  const postSetToken: RequestHandler = (req, res) =>
-    catchError(res, async () => {
-      accessToken = req.body["access_token"];
-      refreshToken = req.body["refresh_token"];
-      console.log(
-        `Access Token: ${accessToken}\nRefresh Token: ${refreshToken}`
-      );
-      const ts = seoulTime.getTimeStamp();
-      req.body.refresh_time_stamp = ts;
-      await writeToken(req.body);
-      res.status(200).send({
-        status: "success",
-      });
-    });
   const postRefreshToken: RequestHandler = (req, res) =>
     catchError(res, async () => {
-      await doRefreshToken();
+      bsData.doRefresh();
       console.log("Token has been refreshed successfully.");
       res.send({
         status: "success",
@@ -198,18 +121,17 @@ const execute: Executable = async (app, conn) => {
       if (req.body.key != sensitiveValue.key) {
         throw new Error("key is incorrect 400");
       }
-      let data = await curl.command("isValid", { access_token: accessToken });
+      let data = await curl.command("isValid");
       console.log(data);
       res.send(data);
     });
-  let a = data.getToken();
+  let a = bsData.getToken();
   let isPromise = (a: any): a is Promise<TokenObject> => "then" in a; //TBD
   if (isPromise(a)) {
     kakaoToken = await a;
   } else kakaoToken = a;
   verifyToken();
 
-  app.post("/set-token", postSetToken);
   app.post("/token", postToken);
   app.post("/kt-test", kakaoTokenTest);
   app.post("/refresh-token", postRefreshToken);

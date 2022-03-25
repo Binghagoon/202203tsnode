@@ -1,13 +1,9 @@
-import {
-  CommandType,
-  Curl,
-  SendKakaoMessageOptions,
-  TokenObject,
-} from "./../types/types.d";
+import { CommandType, Curl, SendKakaoMessageOptions } from "./../types/types.d";
 import commandObject from "../data/curlCommand.json";
-import { kakao_token as kakaoToken } from "../data/sensitive-value.json";
 import { exec } from "child_process";
-import {getReceiver} from "./uuid";
+import { getReceiver } from "./uuid";
+import bmData from "./base_modules/data";
+import { isPromise } from "util/types";
 
 const memoObject = {
   object_type: "text",
@@ -22,14 +18,14 @@ const sendMessageTemplate = {
   object_type: "text",
   text: "호출이 들어왔습니다.\n좌석은 ${seatType}이고, 출발지는 ${departure}이고, 도착지는 ${arrival}입니다.\n 전화번호는 ${phoneAddress}입니다.",
   link: {
-    web_url: "https://smartku.bingha.me",
-    mobile_web_url: "https://smartku.bingha.me",
+    web_url: "https://kubus.bingha.me",
+    mobile_web_url: "https://kubus.bingha.me",
   },
   button_title: "바로 확인",
 };
 
-const execCommand = (command: string): Promise<object | string> => {
-  return new Promise((resolve, reject) => {
+const execCommand = (command: string): Promise<object> => {
+  return new Promise<object>((resolve, reject) => {
     exec(command, (error, stdout) => {
       if (error) {
         console.error(`error: ${error.message}`);
@@ -42,20 +38,22 @@ const execCommand = (command: string): Promise<object | string> => {
       } catch (e) {
         console.error(e);
         debugger;
-        console.log("Error occurred while parsing.");
-        resolve(stdout);
+        console.log("Error occurred while parsing. What is failed is on stderr.");
+        console.error(`Parse failed string:${stdout}`);
+        reject(e);
       }
     });
   });
 };
 
-const createCommand = (templateObject: string | null, curl: Curl): string => {
+const createCommand = async (messageContents: string | null, curl: Curl) => {
   let command = curl.exe;
   let header = "";
   let data = "";
+  let tokenObject = await bmData.getToken();
   curl.headers.forEach((value, index, array) => {
     if (value.includes("Bearer")) {
-      value = value.replace("${accessToken}", kakaoToken.access_token);
+      value = value.replace("${accessToken}", tokenObject.access_token);
     }
     header = `${header} -H "${value}" `;
   });
@@ -63,14 +61,14 @@ const createCommand = (templateObject: string | null, curl: Curl): string => {
     if (value.includes("${templateObject}")) {
       value = value.replace(
         "${templateObject}",
-        templateObject ? templateObject : JSON.stringify(memoObject) + "1"
+        messageContents ? messageContents : JSON.stringify(memoObject)
       );
     } else if (value.includes("receiver_uuids")) {
       let rcv = getReceiver();
       let string = '"' + rcv.join('","') + '"';
       value = value.replace("list", string);
     } else if (value.includes("${refreshToken}")) {
-      value = value.replace("${refreshToken}", kakaoToken.refresh_token);
+      value = value.replace("${refreshToken}", tokenObject.refresh_token);
     }
     data = `${data} --data-urlencode '${value}'`;
   });
@@ -96,17 +94,15 @@ function departureArrivalReplace({
   return JSON.stringify(template);
 }
 
-/** If you send message you should fulfill option otherwise message is not sended.
- * And If you check `kakao_token` is valid then option must have access_token.
+/**
+ * If you send message you should fulfill option otherwise message is not sended.
  */
 const command = async (
   type: CommandType,
-  options?:
-    | SendKakaoMessageOptions
-    | { access_token?: string; accessToken?: string }
+  options?: SendKakaoMessageOptions
 ) => {
-  let exec = async (templateObject: string | null, curl: Curl) =>
-    execCommand(createCommand(templateObject, curl));
+  let exec = async (messageContents: string | null, curl: Curl) =>
+    execCommand(await createCommand(messageContents, curl));
   if (type == "memo") {
     return await exec(JSON.stringify(memoObject), commandObject.memo);
   } else if (type == "friends") {
@@ -120,29 +116,14 @@ const command = async (
       console.log("Kakao message is not sended.");
       throw new Error("Message is not sended");
     }
-    if (!("departure" in options)) throw "Error";
     return await exec(
       departureArrivalReplace(options),
       commandObject.sendMessage
     );
   } else if (type == "isValid") {
-    if (!(typeof options == "object")) {
-      throw 'isValid need options["access_token"]';
-    }
-    if (
-      "access_token" in options &&
-      typeof options.access_token != "undefined"
-    ) {
-      kakaoToken.access_token = options.access_token;
-    } else if (
-      "accessToken" in options &&
-      typeof options.accessToken != "undefined"
-    ) {
-      kakaoToken.access_token = options.accessToken;
-    }
     return await exec(null, commandObject.isValid);
   }
-  return "Nothing executed.";
+  throw new Error("Nothing executed.500");
 };
 
 export { command };
