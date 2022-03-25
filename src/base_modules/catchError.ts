@@ -2,6 +2,7 @@ import isError from "./type_guards/Error";
 import isQueryError from "./type_guards/QueryError";
 import { Response } from "express";
 import seoul from "./seoulTime";
+import isKakaoError from "./type_guards/KakaoError";
 
 /**
  * message string property in Error Object must have 3-digit end of string which is HTTP error code.
@@ -30,7 +31,7 @@ const catchError = async (
     if (isQueryError(e)) {
       console.error(`Query error name: ${e.name}`);
       console.error(`Query message: ${e.message}`);
-      message = "Query error.";
+      message = "Query error:" + e.name;
       code = 500;
       stack = e.stack ? e.stack : stack;
     } else if (isError(e)) {
@@ -43,6 +44,9 @@ const catchError = async (
         message = "Pure Error Object. Described on stderr.";
       }
       stack = e.stack ? e.stack : stack;
+    } else if (isKakaoError(e)) {
+      message = `KaKao API says "${e.msg}" and code is ${e.code}`;
+      code = 500;
     } else if (typeof e == "string") {
       message = e;
       code = 500;

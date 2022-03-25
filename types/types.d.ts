@@ -13,6 +13,10 @@ export type PathObject = {
   put?: string[];
   delete?: string[];
 };
+export type KakaoError = {
+  msg: string;
+  code: number;
+};
 export type Executable = (
   app: Express,
   conn: Connection
@@ -46,7 +50,17 @@ export type ErrorKakaoResult = {
   msg: string;
   code: number;
 };
-export type QueryResults = OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[];
+export type QueryResults =
+  | OkPacket
+  | ResultSetHeader
+  | RowDataPacket[]
+  | RowDataPacket[][]
+  | OkPacket[];
 
-export type CommandType = "memo" | "sendMessage" | "friends" | "getToken" | "isValid";
+export type CommandType =
+  | "memo"
+  | "sendMessage"
+  | "friends"
+  | "getToken"
+  | "isValid";
 export type Curl = { exe: string; headers: string[]; data: string[] };
