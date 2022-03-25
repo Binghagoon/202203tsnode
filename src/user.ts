@@ -119,7 +119,7 @@ const execute: Executable = async function (app, conn) {
     });
   const getAllUsers: RequestHandler = (req, res) =>
     catchError(res, async () => {
-      if (req.body.key != sensitiveValue.key) {
+      if (req.query.key != sensitiveValue.key) {
         throw new Error("key is incorrect 400");
       }
       const sql = "SELECT * FROM user_view;";
