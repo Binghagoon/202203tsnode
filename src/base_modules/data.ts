@@ -1,6 +1,6 @@
 import { TokenObject } from "types/types";
 import { exec } from "child_process";
-import * as fs from "fs";
+import {writeFile} from "fs";
 import tokenObjectTypeGuard from "./type_guards/token_object";
 import seoulTime from "./seoulTime";
 import { command } from "../curl";
@@ -32,7 +32,7 @@ const setPath = (arg: string) => {
       console.log(`stderr while token reading:${stderr}`);
       try {
         kakaoToken = JSON.parse(stdout);
-        if (!kakaoToken) reject("Null");
+        if (!kakaoToken) reject(new Error("Parse didn't work perfectly."));
         else {
           console.log(`kakao token read well. values are ${stdout}`);
           resolve(kakaoToken);
@@ -53,12 +53,11 @@ const getToken = () => {
   let newToken;
   if (kakaoToken) {
     newToken = Object.assign<object, TokenObject>({}, kakaoToken);
-    if (tokenObjectTypeGuard(newToken)) return newToken;
+    return newToken as TokenObject;
   } else return tokenPromise;
-  return kakaoToken; //for type inference
 };
-
-const accessTokenRefresh = (token?: string, timeStamp?: number) => {
+/** `token` will be newer token and if `undefined` will run commend for get newer token.*/
+const accessTokenRefresh = async (token?: string, timeStamp?: number) => {
   if (!token) {
     command("getToken")
       .then((value) => {
@@ -74,7 +73,7 @@ const accessTokenRefresh = (token?: string, timeStamp?: number) => {
   kakaoToken.access_token = token;
   kakaoToken.time_stamp = timeStamp;
   const string = JSON.stringify(kakaoToken, null, 2);
-  fs.writeFile(getPath(), string, (err) => {
+  writeFile(getPath(), string, (err) => {
     if (err) {
       debugger;
       console.error(err);
@@ -83,14 +82,16 @@ const accessTokenRefresh = (token?: string, timeStamp?: number) => {
       console.log(string);
     }
   });
+  return token;
 };
+const doRefresh = () => accessTokenRefresh();
 export default {
   setPort,
   getPort,
   setPath,
   getPath,
   getToken,
-  accessTokenRefresh,
+  doRefresh,
 };
 
 //to be Object

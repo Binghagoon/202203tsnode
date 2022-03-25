@@ -5,9 +5,9 @@ import { RequestHandler } from "express";
 import { Executable, SendKakaoMessageOptions } from "types/types";
 import { command } from "./curl";
 import * as sensitiveValue from "../data/sensitive-value.json";
-import { doRefreshToken } from "./kakao_token";
 import catchError from "./base_modules/catchError";
 import { isErrorKakaoResult } from "./base_modules/type_guards/KakaoResultError";
+import bmData from "./base_modules/data";
 
 function friendList() {
   return command("friends");
@@ -48,12 +48,12 @@ async function sendKakaoMessage(options: SendKakaoMessageOptions) {
   if (isErrorKakaoResult(message)) {
     if (message.code == -401) {
       console.log("Access token has expired. Program refreshes token.");
-      doRefreshToken();
+      await bmData.doRefresh();
       message = await command("sendMessage", options);
     } else {
       console.error(message);
       console.log("Unknown error code. Please see stderr.");
-      throw new Error("Unknown error code.500");
+      throw message;
     }
   }
   return message;
