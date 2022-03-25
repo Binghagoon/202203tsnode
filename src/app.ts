@@ -13,6 +13,7 @@ import { execSync } from "child_process";
 import catchError from "./base_modules/catchError";
 import data from "./base_modules/data";
 import seoulTime from "./base_modules/seoulTime";
+import { verifyToken } from "./base_modules/verify_token";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
@@ -80,6 +81,7 @@ Promise.all(promise)
     debugger;
     console.log("Error occurred.");
   });
+verifyToken();
 
 app.get("/", (req, res) =>
   catchError(res, async () => {
