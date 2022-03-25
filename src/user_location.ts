@@ -3,7 +3,10 @@
 import { Executable } from "../types/types";
 import { RequestHandler } from "express";
 import catchError from "./base_modules/catchError";
-import { OkPacketTypeGuard, selectTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
+import {
+  OkPacketTypeGuard,
+  selectTypeGuard,
+} from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
 
@@ -46,7 +49,8 @@ const execute: Executable = async (app, conn) => {
       noSufficientArgumentError(params);
       const results = await connWithPromise(conn, sql, params);
       if (!OkPacketTypeGuard(results)) throw "Type mismatched";
-      if (results.affectedRows != 1) throw "Not affected";
+      if (results.affectedRows == 0) throw "Not affected";
+      if (results.affectedRows > 1) throw "More affected.";
       res.send({
         status: "success",
       });

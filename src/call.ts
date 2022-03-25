@@ -120,7 +120,7 @@ const execute: Executable = async function (app, conn) {
         throw "Type mismatched";
       }
       try {
-        const renamingResults = results.map(function (value) {
+        results.map(function (value) {
           objectKeyRename(value, "call_id", "callNo");
           objectKeyRename(value, "student_name", "studentName");
           objectKeyRename(value, "student_id", "studentid");
@@ -129,14 +129,14 @@ const execute: Executable = async function (app, conn) {
           objectKeyRename(value, "student_phone", "phoneNumber");
           objectKeyRename(value, "is_wheelchair_seat", "isWheelchairSeat");
         });
-        res.send(renamingResults);
+        res.send(results);
       } catch (e) {
         throw "Error occurred renaming";
       }
     });
   const postCallAccept: RequestHandler = (req, res) =>
     catchError(res, async () => {
-      let sql = "SELECT status FROM call_view cv WHERE cv.id = ?";
+      let sql = "SELECT status FROM call_view cv WHERE cv.call_id = ?";
       let callNo = req.body.callNo;
       let results = await connWithPromise(conn, sql, [callNo]);
       if (selectTypeGuard(results)) {

@@ -9,7 +9,7 @@ import { OkPacketTypeGuard } from "./base_modules/type_guards/query_results_type
 import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
 import tokenObjectTypeGuard from "./base_modules/type_guards/token_object";
-import data from"./base_modules/data"
+import data from "./base_modules/data";
 
 let refreshToken: string, accessToken: string, kakaoToken: TokenObject;
 const WritePromise = (path: string, data: string) =>
@@ -24,7 +24,7 @@ const WritePromise = (path: string, data: string) =>
       }
     })
   );
-  /**@deprecated */
+/**@deprecated */
 const newSensitive = (newKakaoToken: TokenObject) => {
   let newObject: any = { ...sensitiveValue };
   delete newObject.default;
@@ -202,7 +202,11 @@ const execute: Executable = async (app, conn) => {
       console.log(data);
       res.send(data);
     });
-  kakaoToken =data.getToken();
+  let a = data.getToken();
+  let isPromise = (a: any): a is Promise<TokenObject> => "then" in a; //TBD
+  if (isPromise(a)) {
+    kakaoToken = await a;
+  } else kakaoToken = a;
   verifyToken();
 
   app.post("/set-token", postSetToken);

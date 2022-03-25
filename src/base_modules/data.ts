@@ -8,6 +8,7 @@ import { command } from "../curl";
 let port: number | null = null;
 let path: string | null = null;
 let kakaoToken: TokenObject | null = null;
+let tokenPromise: Promise<TokenObject>;
 
 const setPort = (num: number) => {
   if (port) throw new Error("Port number can change only once.");
@@ -22,21 +23,27 @@ const setPath = (arg: string) => {
 
   //Verify path TBD
   path = arg;
-  exec("cat " + path, (error, stdout, stderr) => {
-    if (error) {
-      console.log(error);
-      throw new Error("Error occurred while reading token.");
-    }
-    console.log(`stderr while token reading:${stderr}`);
-    try {
-      kakaoToken = JSON.parse(stdout);
-      console.log(`kakao token read well. values are ${stdout}`);
-    } catch (e) {
-      console.log(e);
-      console.error(e);
-      throw e;
-    }
-  });
+  tokenPromise = new Promise((resolve, reject) =>
+    exec("cat " + path, (error, stdout, stderr) => {
+      if (error) {
+        console.log(error);
+        reject(new Error("Error occurred while reading token."));
+      }
+      console.log(`stderr while token reading:${stderr}`);
+      try {
+        kakaoToken = JSON.parse(stdout);
+        if (!kakaoToken) reject("Null");
+        else {
+          console.log(`kakao token read well. values are ${stdout}`);
+          resolve(kakaoToken);
+        }
+      } catch (e) {
+        console.log(e);
+        console.error(e);
+        reject(e);
+      }
+    })
+  );
 };
 const getPath = () => {
   if (path) return path;
@@ -47,7 +54,7 @@ const getToken = () => {
   if (kakaoToken) {
     newToken = Object.assign<object, TokenObject>({}, kakaoToken);
     if (tokenObjectTypeGuard(newToken)) return newToken;
-  } else throw new Error("There is no token.");
+  } else return tokenPromise;
   return kakaoToken; //for type inference
 };
 
