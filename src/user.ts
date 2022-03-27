@@ -60,7 +60,7 @@ const execute: Executable = async function (app, conn) {
 
   const getDriverInfo: RequestHandler = (req, res) =>
     catchError(res, async () => {
-      const sql = "SELECT id, license, carname, phone FROM user_view WHERE `id`=?";
+      const sql = "SELECT license, carname, car_id, phone FROM user_view WHERE `id`=?";
       const id = req.query.id;
       noSufficientArgumentError([id]);
       const results = await connWithPromise(conn, sql, [id]);
@@ -68,8 +68,12 @@ const execute: Executable = async function (app, conn) {
         throw "Type mismatched";
       }
       const result = results[0];
+
+      objectKeyRename(result, "car_id", "carId");
+
       objectKeyCopy(result, "phone", "phoneNumber");
       objectKeyCopy(result, "phone", "phonenumber");
+      objectKeyCopy(result, "carId", "carid");
       res.send(result);
     });
 
