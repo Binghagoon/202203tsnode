@@ -11,6 +11,8 @@ const getTime = (diff?: number) => {
     timeZone: "Asia/Seoul",
   });
 };
+d.toLocaleDateString()
 const getHour = () => (d.getUTCHours() + 9) % 24;
+const getDay = () => d.getDay();   //It is working well? I don't know.
 const getTimeStamp = () => Math.floor(Date.now() / 1000);
-export default { getTime, getHour, getTimeStamp };
+export default { getTime, getHour, getTimeStamp, getDay };

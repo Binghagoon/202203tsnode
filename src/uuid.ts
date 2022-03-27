@@ -8,7 +8,8 @@ export const receiverToUuid: { [user: string]: string } = {
 export const receiver: string[] = [];
 export const getReceiver = (): string[] => {
   const hour = seoul.getHour();
-  if (hour < 8 || hour > 19) {
+  const day = seoul.getDay();
+  if (hour < 8 || hour > 19 || day == 0 || day == 6) {
     let msuuid = sensitive.friends.elements[0].uuid;
     if (receiver.includes(msuuid)) return [msuuid];
     else return [];
