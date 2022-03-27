@@ -594,7 +594,40 @@ Parameter
 | arrival          | String  | 도착지명           | O        |
 | isWheelchairSeat | Boolean | 휠체어석 선택 여부 | O        |
 
-### 5.5. 기사가 호출을 받을 때
+### 5.5. 호출 정보 가져오기
+
+### Request
+
+URL
+
+```
+GET /call-info
+Host: smartku.net/node
+```
+
+Parameter
+
+| Name | Type    | Description        | Required |
+| ---- | ------- | ------------------ | -------- |
+| id   | Integer | 호출에 배정된 번호 | O        |
+
+### Response
+
+| Name             | Type    | Description             | Required |
+| ---------------- | ------- | ----------------------- | -------- |
+| studentId        | Integer | 학생 고유 번호          | O        |
+| callNo           | Integer | 호출에 배정된 번호      | O        |
+| name             | String  | 학생 이름               | O        |
+| email            | String  | 학생 이메일             | O        |
+| phoneNumber      | String  | 학생 휴대전화 번호      | O        |
+| time             | String  | 호출 시간               | O        |
+| departure        | String  | 출발지명                | O        |
+| arrival          | String  | 도착지명                | O        |
+| isWheelchairSeat | Boolean | 휠체어석 선택 여부      | O        |
+| driverId         | Integer | 드라이버 id             | O        |
+| driverName       | String  | 드라이버 이름(realname) | O        |
+
+### 5.6. 기사가 호출을 받을 때
 
 ### Request
 
@@ -619,7 +652,7 @@ Parameter
 | status       | "success" \| "error" | 상태                          | O        |
 | errorMessage | String               | 호출 수락 실패 시 오류 메시지 | X        |
 
-### 5.6. 기사가 호출을 끝낼 때
+### 5.7. 기사가 호출을 끝낼 때
 
 ### Request
 
@@ -643,7 +676,7 @@ Parameter
 | status       | "success" \| "error" | 상태                          | O        |
 | errorMessage | String               | 호출 종료 실패 시 오류 메시지 | X        |
 
-### 5.7. 학생이 호출을 취소할 때
+### 5.8. 학생이 호출을 취소할 때
 
 ### Request
 

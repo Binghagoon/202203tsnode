@@ -1,19 +1,20 @@
 // It's referred from 202109-node/call.js at fa5fc60f884d1550739ee39b64f395a4136fd0c0.
 
 //import getid from "./get-id-from-username";
-import {
-  allowCallStatus,
-  statusToNumber,
-} from "./base_module";
+import { allowCallStatus, statusToNumber } from "./base_module";
 import { sendKakaoMessage } from "./message";
-import { CallStatus, Executable } from "types/types";
+import { CallStatus, Executable, QueryResults } from "types/types";
 import { RequestHandler } from "express";
 import catchError from "./base_modules/catchError";
 import objectKeyRename from "./base_modules/objectKeyRename";
-import { OkPacketTypeGuard, selectTypeGuard } from "./base_modules/type_guards/query_results_type_guards";
+import {
+  OkPacketTypeGuard,
+  selectTypeGuard,
+} from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
-import specific from "./base_modules/get_specific_data"
+import specific from "./base_modules/get_specific_data";
+import objectKeyCopy from "./base_modules/object_key_copy";
 
 function checkStatusString(str: CallStatus) {
   try {
@@ -27,6 +28,20 @@ function checkStatusString(str: CallStatus) {
     return false;
   }
 }
+const callViewRename = function (value: any) {
+  objectKeyRename(value, "call_id", "callNo");
+  objectKeyRename(value, "student_name", "studentName");
+  objectKeyRename(value, "student_id", "studentId");
+  objectKeyRename(value, "departure_name", "departure");
+  objectKeyRename(value, "arrival_name", "arrival");
+  objectKeyRename(value, "student_phone", "phoneNumber");
+  objectKeyRename(value, "is_wheelchair_seat", "isWheelchairSeat");
+  objectKeyRename(value, "driver_name", "driverName");
+  objectKeyRename(value, "driver_id", "driverId");
+
+  objectKeyCopy(value, "driverId", "driverid");
+  objectKeyCopy(value, "studentId", "studentid");
+};
 
 const execute: Executable = async function (app, conn) {
   const postCallRequest: RequestHandler = (req, res) =>
@@ -120,15 +135,7 @@ const execute: Executable = async function (app, conn) {
         throw "Type mismatched";
       }
       try {
-        results.map(function (value) {
-          objectKeyRename(value, "call_id", "callNo");
-          objectKeyRename(value, "student_name", "studentName");
-          objectKeyRename(value, "student_id", "studentid");
-          objectKeyRename(value, "departure_name", "departure");
-          objectKeyRename(value, "arrival_name", "arrival");
-          objectKeyRename(value, "student_phone", "phoneNumber");
-          objectKeyRename(value, "is_wheelchair_seat", "isWheelchairSeat");
-        });
+        results.map(callViewRename);
         res.send(results);
       } catch (e) {
         throw "Error occurred renaming";
@@ -266,7 +273,28 @@ const execute: Executable = async function (app, conn) {
         });
       }
     });
+  const getCallInfo: RequestHandler = (req, res) => {
+    catchError(res, async () => {
+      const sql = "SELECT * FROM call_view WHERE call_id = ?;";
+      const query = req.query;
+      const id: any = query.id ? query.id : query.callId; //TBD type guard
+      const params = [id];
+      noSufficientArgumentError(params);
+      const results = await connWithPromise(conn, sql, params);
+      if (!selectTypeGuard(results)) {
+        throw "Type mismatched.";
+      }
+      if (results.length != 1) {
+        throw "Length does not 1.";
+      }
+      const result = results[0];
+      callViewRename(result);
+      res.send(result);
+    });
+  };
 
+  app.get("/call-info", getCallInfo);
+  app.get("/get-call-info", getCallInfo);
   app.post("/call-request", postCallRequest);
   app.get("/call-status", getCallStatus);
   app.get("/no-driver-call", getNoDriverCall);
