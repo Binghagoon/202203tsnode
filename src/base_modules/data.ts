@@ -22,7 +22,6 @@ const catToken = () =>
         kakaoToken = JSON.parse(stdout);
         if (!kakaoToken) reject(new Error("Parse didn't work perfectly."));
         else {
-          console.log(`kakao token read well.\nvalues are ${stdout}`);
           resolve(kakaoToken);
         }
       } catch (e) {
