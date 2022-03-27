@@ -17,7 +17,16 @@ import { verifyToken } from "./base_modules/verify_token";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
-conn.connect();
+const revision = execSync("git rev-parse HEAD").toString().trim();
+const branch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+const shortRevision = revision.substring(0, 6);
+conn.connect((err) => {
+  if (err) {
+    console.error(err);
+    throw err;
+  }
+  console.log("Connected to database.");
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -87,7 +96,8 @@ app.get("/", (req, res) =>
   catchError(res, async () => {
     let d = new Date();
     res.send(
-      `Server Alive!! It's time is  ${seoulTime.getTime()}  maybe this is KST.\n`
+      `Server Alive!! It's time is  ${seoulTime.getTime()}  maybe this is KST. ` +
+        `Git branch is ${branch} and git revision is ${revision}.`
     );
   })
 );
@@ -113,16 +123,7 @@ OpenPort(data.getPort())
   .then(function () {
     console.log(`http server opened on port ${data.getPort()}`);
     console.log(`Database is ${sensitive.dbinfo.database}`);
-    try {
-      const revision = execSync("git rev-parse HEAD").toString().trim();
-      const branch = execSync("git rev-parse --abbrev-ref HEAD")
-        .toString()
-        .trim();
-      console.log(`Git hash: ${revision.substring(0, 6)} and Branch:${branch}`);
-    } catch (e) {
-      console.error(e);
-      console.log("Error on print git data. Please see stderr.");
-    }
+    console.log(`Git revision: ${shortRevision} and Branch:${branch}`);
   })
   .catch((e) => {
     console.log("Can`t open port %d", data.getPort());
