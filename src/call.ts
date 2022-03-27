@@ -1,7 +1,7 @@
 // It's referred from 202109-node/call.js at fa5fc60f884d1550739ee39b64f395a4136fd0c0.
 
 //import getid from "./get-id-from-username";
-import { allowCallStatus, statusToNumber } from "./base_module";
+import { allowCallStatus, statusToNumber } from "./base_modules/call_status";
 import { sendKakaoMessage } from "./message";
 import { CallStatus, Executable, QueryResults } from "types/types";
 import { RequestHandler } from "express";

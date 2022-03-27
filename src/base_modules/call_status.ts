@@ -1,4 +1,4 @@
-import { CallStatus } from "../types/types";
+import { CallStatus } from "../../types/types";
 
 //type GetUserData = (arg: any, conn:Connection) => any;
 
