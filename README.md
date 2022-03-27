@@ -585,7 +585,7 @@ Parameter
 | ---------------- | ------- | ------------------ | -------- |
 | studentId        | Integer | 학생 고유 번호     | O        |
 | callNo           | Integer | 호출에 배정된 번호 | O        |
-| name             | String  | 학생 이름          | O        |
+| realname         | String  | 학생 이름          | O        |
 | email            | String  | 학생 이메일        | O        |
 | phoneNumber      | String  | 학생 휴대전화 번호 | O        |
 | time             | String  | 호출 시간          | O        |
