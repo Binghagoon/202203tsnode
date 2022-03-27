@@ -115,7 +115,7 @@ Parameter
 | type    | "driver" | driver로 고정 | O        |
 | id      | Integer  | 회원 번호     | O        |
 | license | String   | ?             | O        |
-| carname | String   | ?             | O        |
+| carName | String   | ?             | O        |
 
 ### Response
 
@@ -177,7 +177,7 @@ Parameter
 | phone         | String                                   | 회원 휴대전화 번호 | O        |
 | role          | "ADMINISTRATOR" \| "DRIVER" \| "STUDENT" | 회원 역할          | O        |
 | license       | String                                   | 기사일 때 ?        | X        |
-| carname       | String                                   | 기사일 때 ?        | X        |
+| carName       | String                                   | 기사일 때 ?        | X        |
 | studentNumber | String                                   | 학생일 때 학번     | X        |
 | major         | String                                   | 학생일 때 전공     | X        |
 
@@ -236,7 +236,7 @@ Parameter
 | phone         | String                                   | 회원 휴대전화 번호 | O        |
 | role          | "ADMINISTRATOR" \| "DRIVER" \| "STUDENT" | 회원 역할          | O        |
 | license       | String                                   | 기사일 때 ?        | X        |
-| carname       | String                                   | 기사일 때 ?        | X        |
+| carName       | String                                   | 기사일 때 ?        | X        |
 | studentNumber | String                                   | 학생일 때 학번     | X        |
 | major         | String                                   | 학생일 때 전공     | X        |
 
@@ -286,9 +286,9 @@ Parameter
 
 | Name    | Type    | Description               | Required |
 | ------- | ------- | ------------------------- | -------- |
-| carid   | Integer | 자동차의 식별 번호(N호차) | O        |
+| carId   | Integer | 자동차의 식별 번호(N호차) | O        |
 | license | String  | 자동차의 번호(00가0000)   | X        |
-| carname | String  | 차종                      | X        |
+| carName | String  | 차종                      | X        |
 
 ### 2.5. 학생 정보 수정하기
 
@@ -323,7 +323,7 @@ Parameter
 URL
 
 ```
-
+POST /update-driver-info
 Host: smartku.net/node
 ```
 
@@ -332,9 +332,9 @@ Parameter
 | Name    | Type    | Description        | Required |
 | ------- | ------- | ------------------ | -------- |
 | id      | Integer | 회원 번호          | O        |
-| carid   | Integer | 자동차의 식별 번호 | O        |
+| carId   | Integer | 자동차의 식별 번호 | O        |
 | license | String  | 자동차의 번호      | O        |
-| carname | String  | 차종               | O        |
+| carName | String  | 차종               | O        |
 
 ### Response
 
