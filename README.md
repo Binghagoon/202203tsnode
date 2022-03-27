@@ -284,11 +284,12 @@ Parameter
 
 ### Response
 
-| Name    | Type    | Description               | Required |
-| ------- | ------- | ------------------------- | -------- |
-| carid   | Integer | 자동차의 식별 번호(N호차) | O        |
-| license | String  | 자동차의 번호(00가0000)   | X        |
-| carname | String  | 차종                      | X        |
+| Name        | Type    | Description               | Required |
+| ----------- | ------- | ------------------------- | -------- |
+| carid       | Integer | 자동차의 식별 번호(N호차) | O        |
+| license     | String  | 자동차의 번호(00가0000)   | X        |
+| phoneNumber | String  | 핸드폰 번호               | X        |
+| carname     | String  | 차종                      | X        |
 
 ### 2.5. 학생 정보 수정하기
 

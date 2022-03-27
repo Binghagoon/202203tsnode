@@ -13,6 +13,7 @@ import objectKeyRename from "./base_modules/objectKeyRename";
 import {OkPacketTypeGuard, selectTypeGuard} from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
+import objectKeyCopy from "./base_modules/object_key_copy";
 
 const execute: Executable = async function (app, conn) {
   const getId: RequestHandler = (req, res) =>
@@ -59,7 +60,7 @@ const execute: Executable = async function (app, conn) {
 
   const getDriverInfo: RequestHandler = (req, res) =>
     catchError(res, async () => {
-      const sql = "SELECT id, license, carname FROM user_view WHERE `id`=?";
+      const sql = "SELECT id, license, carname, phone FROM user_view WHERE `id`=?";
       const id = req.query.id;
       noSufficientArgumentError([id]);
       const results = await connWithPromise(conn, sql, [id]);
@@ -67,6 +68,8 @@ const execute: Executable = async function (app, conn) {
         throw "Type mismatched";
       }
       const result = results[0];
+      objectKeyCopy(result, "phone", "phoneNumber");
+      objectKeyCopy(result, "phone", "phonenumber");
       res.send(result);
     });
 
