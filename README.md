@@ -49,7 +49,7 @@ Parameter
 | Name     | Type   | Description                 | Required |
 | -------- | ------ | --------------------------- | -------- |
 | username | String | 로그인 아이디               | O        |
-| pw       | String | sha_256으로 해싱한 비밀번호 | X        |
+| pw       | String | sha3_256으로 해싱한 비밀번호 | X        |
 
 ### Response
 
