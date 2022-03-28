@@ -323,7 +323,7 @@ Parameter
 ### Request
 
 URL
-
+POST /update-driver-info
 ```
 
 Host: smartku.net/node
