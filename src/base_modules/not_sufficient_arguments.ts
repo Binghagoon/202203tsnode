@@ -1,9 +1,8 @@
 import { Response } from "express";
 const noSufficientArgumentError = (args: any[], res?: Response): boolean => {
-  //to be tested.
   let b = false;
   for (const val of args) {
-    b = b || (val == undefined && val == "undefined");
+    b = b || val == undefined || val == "undefined";
   }
   if (b) {
     if (res) {
