@@ -4,13 +4,12 @@ import { QueryResults } from "types/types";
 const connWithPromise = (
   conn: Connection,
   sql: string,
-  params: any[],
-  getField = false
-): Promise<QueryResults | [QueryResults, FieldPacket[]]> =>
+  params: any[]
+): Promise<QueryResults> =>
   new Promise(function (resolve, reject) {
     conn.query(sql, params, (err, results, field) => {
       if (err) reject(err);
-      else resolve(getField ? [results, field] : results);
+      else resolve(results);
     });
   });
 export default connWithPromise;
