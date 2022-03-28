@@ -46,9 +46,9 @@ Host: smartku.net/node
 
 Parameter
 
-| Name     | Type   | Description                 | Required |
-| -------- | ------ | --------------------------- | -------- |
-| username | String | 로그인 아이디               | O        |
+| Name     | Type   | Description                  | Required |
+| -------- | ------ | ---------------------------- | -------- |
+| username | String | 로그인 아이디                | O        |
 | pw       | String | sha3_256으로 해싱한 비밀번호 | X        |
 
 ### Response
@@ -101,12 +101,13 @@ Parameter
 
 #### 학생의 경우
 
-| Name          | Type      | Description    | Required |
-| ------------- | --------- | -------------- | -------- |
-| type          | "student" | student로 고정 | O        |
-| id            | Integer   | 회원 번호      | O        |
-| studentNumber | String    | 학번           | O        |
-| major         | String    | 전공           | O        |
+| Name          | Type             | Description    | Required |
+| ------------- | ---------------- | -------------- | -------- |
+| type          | "student"        | student로 고정 | O        |
+| id            | Integer          | 회원 번호      | O        |
+| studentNumber | String           | 학번           | O        |
+| major         | String           | 전공           | O        |
+| force         | undefined/"true" | 강제 재배정    | O        |
 
 #### 기사의 경우
 

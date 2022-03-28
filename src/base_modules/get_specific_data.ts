@@ -32,7 +32,7 @@ const getRole = async (id: any, conn: Connection) => {
     throw "Type mismatched.";
   }
   const role = results[0].role;
-  if (typeof role != "string") throw new Error("Role is not string.");
+  if (typeof role != "string"&& role!==null) throw new Error("Role is not string or null.");
   return role;
 };
 
