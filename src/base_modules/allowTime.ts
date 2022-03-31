@@ -30,30 +30,23 @@ const isAllowMinute = (minute: minute) => {
   });
   return allowable;
 };
-const getAllowMinuteFromSql = async (conn: Connection) => {
+const getAllowMinuteFromSql = async (conn: Connection, clear = false) => {
   const sql = "SELECT * FROM allow_time";
   const results = await connWithPromise(conn, sql);
   if (selectTypeGuard(results)) {
+    if (clear) {
+      while (allowMinute.pop());
+    }
     results.forEach((value) =>
       addAllowMinute([value.start, value.end, value.id, value.comment])
     );
   } else throw new Error("Type mismatched.");
 };
-const removeAllowMinute = (id: number) =>
-  allowMinute.forEach((value, index) =>
-    value[2] == id ? allowMinute.slice(index, 1) : undefined
-  );
-const updateAllowMinute = (packet: AllowPacket) =>
-  allowMinute.forEach((value) =>
-    value[2] == packet[2] ? (value = packet) : undefined
-  );
 
 export default {
   initialize: getAllowMinuteFromSql,
   isAllowMinute,
   isMinuteValid,
   changeToHourAndMinutePacket,
-  removeAllowMinute,
-  updateAllowMinute,
   addAllowMinute,
 };

@@ -23,12 +23,14 @@ const execute: Executable = async (app, conn) => {
         throw "Type Mismatched.";
       }
       if (results.affectedRows == 1) {
+        await allowTime.initialize(conn,true);
         res.send({ status: "success" });
-        const start = parseInt(body.start);
-        const end = parseInt(body.end);
-        const id = parseInt(req.params.id);
 
-        allowTime.updateAllowMinute([start, end, id]);
+      } else {
+        res.send({
+          status: "error",
+          errorMessage: "There is no value such id.",
+        });
       }
     });
 
@@ -43,11 +45,13 @@ const execute: Executable = async (app, conn) => {
         throw "Type Mismatched.";
       }
       if (results.affectedRows == 1) {
-        res.send({ status: "success", id: results.insertId });
         const start = parseInt(body.start);
         const end = parseInt(body.end);
         const id = parseInt(req.params.id);
         allowTime.addAllowMinute([start, end, id]);
+        res.send({ status: "success", id: results.insertId });
+      } else {
+        res.send({ status: "error", errorMassage: "Not affected." });
       }
     });
   const deleteAllowTimes: RequestHandler = (req, res) =>
@@ -60,8 +64,10 @@ const execute: Executable = async (app, conn) => {
         throw "Type Mismatched.";
       }
       if (results.affectedRows == 1) {
+        await allowTime.initialize(conn,true);
         res.send({ status: "success" });
-        allowTime.removeAllowMinute(parseInt(req.params.id));
+      } else {
+        res.send({ status: "error", errorMassage: "Not affected." });
       }
     });
 
