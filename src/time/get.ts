@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
-import allowTime from "src/base_modules/allowTime";
-import catchError from "src/base_modules/catchError";
-import connWithPromise from "src/base_modules/conn_with_promise";
-import noSufficientArgumentError from "src/base_modules/not_sufficient_arguments";
-import { selectTypeGuard } from "src/base_modules/type_guards/query_results_type_guards";
+import allowTime from "../base_modules/allowTime";
+import catchError from "../base_modules/catchError";
+import connWithPromise from "../base_modules/conn_with_promise";
+import noSufficientArgumentError from "../base_modules/not_sufficient_arguments";
+import { selectTypeGuard } from "../base_modules/type_guards/query_results_type_guards";
 import { Executable } from "types/types";
 
 const execute: Executable = (app, conn) => {
