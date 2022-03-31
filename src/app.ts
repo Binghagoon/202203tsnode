@@ -14,6 +14,7 @@ import catchError from "./base_modules/catchError";
 import data from "./base_modules/data";
 import seoulTime from "./base_modules/seoulTime";
 import { verifyToken } from "./base_modules/verify_token";
+import time from "./time/execute";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
@@ -80,6 +81,7 @@ const executableJS = [
   authentication,
   message,
   kakaoToken,
+  time,
 ];
 const promise = executableJS.map((jsFile) => jsFile(app, conn));
 Promise.all(promise)

@@ -29,7 +29,14 @@
    5.4. [할당되지 않은 호출 가져오기](#54-할당되지-않은-호출-가져오기)<br>
    5.5. [기사가 호출을 받을 때](#55-기사가-호출을-받을-때)<br>
    5.6. [기사가 호출을 끝낼 때](#56-기사가-호출을-끝낼-때)<br>
-   5.7. [학생이 호출을 취소할 때](#57-학생이-호출을-취소할-때)
+   5.7. [학생이 호출을 취소할 때](#57-학생이-호출을-취소할-때)<br>
+6. [시간](#6-시간)<br>
+   6.1. [콜가능 시간인지 확인 할때](#61-콜가능-시간인지-확인-할때)<br>
+   6.2. [콜가능 시간 리스트 가져오기](#62-콜가능-시간-리스트-가져오기)<br>
+   6.3. [콜가능 특정 시간 가져오기](#63-콜가능-특정-시간-가져오기)<br>
+   6.4. [콜가능 특정 시간 수정하기](#64-콜가능-특정-시간-수정하기)<br>
+   6.5. [콜가능 특정 시간 추가하기](#65-콜가능-특정-시간-추가하기)<br>
+   6.6. [콜가능 특정 시간 삭제하기](#66-콜가능-특정-시간-삭제하기)<br>
 
 ## 1. 로그인
 
@@ -324,6 +331,7 @@ Parameter
 
 URL
 POST /update-driver-info
+
 ```
 
 Host: smartku.net/node
@@ -700,3 +708,143 @@ Parameter
 | ------------ | -------------------- | ----------------------------- | -------- |
 | status       | "success" \| "error" | 상태                          | O        |
 | errorMessage | String               | 호출 취소 실패 시 오류 메시지 | X        |
+
+## 6. 시간
+
+### 6.1. 콜가능 시간인지 확인 할때
+
+### Request
+
+```
+GET /allow-times/check
+Host: smartku.net/node
+```
+
+Parameter
+
+| Name   | Type    | Description            | Required |
+| ------ | ------- | ---------------------- | -------- |
+| minute | Integer | `0:00`부터 지난 `분`값 | O        |
+
+### Response
+
+| Name         | Type                     | Description | Required |
+| ------------ | ------------------------ | ----------- | -------- |
+| status       | "true"\|"false"\|"error" | 결과        | O        |
+| errorMessage | String\|undefined        | 오류메세지  | X        |
+
+### 6.2. 콜가능 시간 리스트 가져오기
+
+### Request
+
+```
+GET /allow-times
+Host: smartku.net/node
+```
+
+Parameter
+없음
+
+### Response
+
+| Name    | Type    | Description | Required |
+| ------- | ------- | ----------- | -------- |
+| id      | Integer | 구분번호    | O        |
+| start   | Integer | 시작시간    | X        |
+| end     | Integer | 종료시간    | X        |
+| comment | String  | 설명        | X        |
+
+### 6.3. 콜가능 특정 시간 가져오기
+
+### Request
+
+```
+GET /allow-times/:id
+Host: smartku.net/node
+```
+
+Parameter
+없음
+
+### Response
+
+List
+
+| Name    | Type    | Description | Required |
+| ------- | ------- | ----------- | -------- |
+| id      | Integer | 구분번호    | O        |
+| start   | Integer | 시작시간    | O        |
+| end     | Integer | 종료시간    | O        |
+| comment | String  | 설명        | O        |
+
+### 6.4. 콜가능 특정 시간 수정하기
+
+### Request
+
+```
+POST /allow-times/:id
+Host: smartku.net/node
+```
+
+Parameter
+
+| Name    | Type    | Description | Required |
+| ------- | ------- | ----------- | -------- |
+| id      | Integer | 구분번호    | O        |
+| start   | Integer | 시작시간    | O        |
+| end     | Integer | 종료시간    | O        |
+| comment | String  | 설명        | O        |
+
+### Response
+
+| Name         | Type               | Description | Required |
+| ------------ | ------------------ | ----------- | -------- |
+| status       | "error"\|"success" | 상태        | O        |
+| errorMessage | String\|undefined  | 오류메세지  | X        |
+
+### 6.5. 콜가능 특정 시간 추가하기
+
+### Request
+
+```
+PUT /allow-times
+Host: smartku.net/node
+```
+
+Parameter
+
+| Name    | Type    | Description | Required |
+| ------- | ------- | ----------- | -------- |
+| start   | Integer | 시작시간    | O        |
+| end     | Integer | 종료시간    | O        |
+| comment | String  | 설명        | O        |
+
+### Response
+
+| Name         | Type               | Description | Required |
+| ------------ | ------------------ | ----------- | -------- |
+| id           | Integer            | 구분번호    | O        |
+| status       | "error"\|"success" | 상태        | O        |
+| errorMessage | String\|undefined  | 오류메세지  | X        |
+
+### 6.6. 콜가능 특정 시간 삭제하기
+
+### Request
+
+```
+DELETE /allow-times/:id
+Host: smartku.net/node
+```
+
+Parameter
+
+| Name | Type    | Description | Required |
+| ---- | ------- | ----------- | -------- |
+| id   | Integer | 구분번호    | O        |
+
+### Response
+
+| Name         | Type               | Description | Required |
+| ------------ | ------------------ | ----------- | -------- |
+| status       | "error"\|"success" | 상태        | O        |
+| errorMessage | String\|undefined  | 오류메세지  | X        |
