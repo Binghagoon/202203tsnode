@@ -1,62 +1,12 @@
 import { RequestHandler } from "express";
-import { Executable, QueryResults } from "../types/types";
-import catchError from "./base_modules/catchError";
-import { getRole } from "./base_modules/get_specific_data";
-import connWithPromise from "./base_modules/conn_with_promise";
-import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
-import {
-  OkPacketTypeGuard,
-  selectTypeGuard,
-} from "./base_modules/type_guards/query_results_type_guards";
+import catchError from "../../base_modules/catchError";
+import connWithPromise from "../../base_modules/conn_with_promise";
+import { getRole } from "../../base_modules/get_specific_data";
+import noSufficientArgumentError from "../../base_modules/not_sufficient_arguments";
+import { OkPacketTypeGuard } from "../../base_modules/type_guards/query_results_type_guards";
+import { Executable, QueryResults } from "types/types";
 
-const getSqlParams = (type: string) => {};
-const execute: Executable = async function (app, conn) {
-  const getSignIn: RequestHandler = (req, res) =>
-    catchError(res, async () => {
-      const sql =
-        "SELECT u.id, rl.role, u.realname FROM  `user` u" +
-        " LEFT OUTER JOIN role_list rl ON u.role = rl.id " +
-        "WHERE username = ? AND (pw IS NULL OR  pw = ?)";
-      const arg = req.query;
-      const params = [arg.username, arg.pw];
-      if (noSufficientArgumentError(params, res)) {
-        return;
-      }
-      const results = await connWithPromise(conn, sql, params);
-      if (!selectTypeGuard(results)) {
-        throw "Type mismatched";
-      }
-      if (results.length == 0) {
-        res.status(400).send({ status: "fail" });
-      } else if (results[0]["role"] == null) {
-        res.status(401).send({ status: "notAllowed" });
-      } else {
-        const result = results[0];
-        res.send({
-          role: result.role,
-          id: result.id,
-          realname: result.realname,
-        });
-      }
-    });
-
-  const postSignUp: RequestHandler = (req, res) =>
-    catchError(res, async () => {
-      //POST
-      const sql =
-        "INSERT INTO user (realname, username, email, phone) VALUES (?, ?, ?, ?);";
-      const arg = req.body;
-      const params = [arg.realname, arg.username, arg.email, arg.phone];
-      noSufficientArgumentError(params);
-      const results = await connWithPromise(conn, sql, params);
-      if (!OkPacketTypeGuard(results)) {
-        throw "Type mismatched";
-      }
-      res.status(200).send({
-        status: "success",
-      });
-    });
-
+const execute: Executable = (app, conn) => {
   const putSignUpAllow: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const args = req.body;
@@ -124,15 +74,11 @@ const execute: Executable = async function (app, conn) {
         });
       }
     });
-  app.get("/sign-in", getSignIn);
-  app.post("/sign-up", postSignUp);
-  app.put("/sign-up-allow", putSignUpAllow);
-  app.post("/sign-up-allow", putSignUpAllow);
 
+  app.post("/sign-up-allow", putSignUpAllow);
   return {
-    put: ["/sign-up-allow"],
-    get: ["/sign-in"],
-    post: ["/sign-up", "/sign-up-allow"],
+    post: ["/sign-up-allow"],
   };
 };
+
 export default execute;

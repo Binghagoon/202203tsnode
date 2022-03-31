@@ -5,7 +5,7 @@ import recordPositions from "./record_positions";
 import userLocation from "./user_location";
 import call from "./call";
 import user from "./user";
-import authentication from "./authentication";
+import authentication from "./authentication/execute";
 import message from "./message";
 import kakaoToken from "./kakao_token";
 import * as uuid from "./uuid";
