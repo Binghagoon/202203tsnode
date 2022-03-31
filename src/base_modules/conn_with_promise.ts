@@ -4,9 +4,10 @@ import { QueryResults } from "types/types";
 const connWithPromise = (
   conn: Connection,
   sql: string,
-  params: any[]
+  params?: any[]
 ): Promise<QueryResults> =>
   new Promise(function (resolve, reject) {
+    if (params == undefined) params = [];
     conn.query(sql, params, (err, results, field) => {
       if (err) reject(err);
       else resolve(results);
