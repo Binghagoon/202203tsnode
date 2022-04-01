@@ -6,13 +6,12 @@ import noSufficientArgumentError from "../../base_modules/not_sufficient_argumen
 import { OkPacketTypeGuard } from "../../base_modules/type_guards/query_results_type_guards";
 import { Executable, QueryResults } from "types/types";
 
-/** @deprecated  change to PUT /users/:id */
 const execute: Executable = (app, conn) => {
-  const putSignUpAllow: RequestHandler = (req, res) =>
+  const putUsers: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const args = req.body;
       const type = args.type;
-      const id = args.id;
+      const id = req.params.id;
       let sql = "",
         params: any[] = [],
         updateUserResults: QueryResults;
@@ -76,9 +75,9 @@ const execute: Executable = (app, conn) => {
       }
     });
 
-  app.post("/sign-up-allow", putSignUpAllow);
+  app.put("/users/:id", putUsers);
   return {
-    post: ["/sign-up-allow"],
+    put: ["/users/:id"],
   };
 };
 

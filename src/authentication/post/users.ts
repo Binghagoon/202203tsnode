@@ -5,11 +5,9 @@ import noSufficientArgumentError from "../../base_modules/not_sufficient_argumen
 import { OkPacketTypeGuard } from "../../base_modules/type_guards/query_results_type_guards";
 import { Executable } from "types/types";
 
-/** @deprecated  change to POST /users */
 const execute :Executable=(app,conn)=>{
-  const postSignUp: RequestHandler = (req, res) =>
+  const postUsers: RequestHandler = (req, res) =>
   catchError(res, async () => {
-    //POST
     const sql =
       "INSERT INTO user (realname, username, email, phone) VALUES (?, ?, ?, ?);";
     const arg = req.body;
@@ -21,11 +19,12 @@ const execute :Executable=(app,conn)=>{
     }
     res.status(200).send({
       status: "success",
+      id: results.insertId,
     });
   });
-  app.post("/sign-up", postSignUp);
+  app.post("/users", postUsers);
   return{
-      post:["/sign-up"],
+      post:["/users"],
   }
 }
 export default execute;

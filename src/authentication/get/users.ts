@@ -5,9 +5,8 @@ import noSufficientArgumentError from "../../base_modules/not_sufficient_argumen
 import { selectTypeGuard } from "../../base_modules/type_guards/query_results_type_guards";
 import { Executable } from "types/types";
 
-/** @deprecated  change to GET /users */
 const execute: Executable = (app, conn) => {
-  const getSignIn: RequestHandler = (req, res) =>
+  const getUsers: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql =
         "SELECT u.id, rl.role, u.realname FROM  `user` u" +
@@ -35,9 +34,9 @@ const execute: Executable = (app, conn) => {
         });
       }
     });
-  app.get("/sign-in", getSignIn);
+  app.get("/users", getUsers);
   return {
-    get: ["/sign-in"],
+    get: ["/users"],
   };
 };
 export default execute;
