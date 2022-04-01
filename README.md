@@ -47,7 +47,7 @@
 URL
 
 ```
-GET /sign-in
+GET /users
 Host: smartku.net/node
 ```
 
@@ -73,7 +73,7 @@ Parameter
 URL
 
 ```
-POST /sign-up
+POST /users
 Host: smartku.net/node
 ```
 
@@ -100,7 +100,7 @@ Parameter
 URL
 
 ```
-PUT|POST /sign-up-allow
+PUT   /users/:id
 Host: smartku.net/node
 ```
 
