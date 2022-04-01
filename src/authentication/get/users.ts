@@ -13,10 +13,9 @@ const execute: Executable = (app, conn) => {
         " LEFT OUTER JOIN role_list rl ON u.role = rl.id " +
         "WHERE username = ? AND (pw IS NULL OR  pw = ?)";
       const arg = req.query;
-      const params = [arg.username, arg.pw];
-      if (noSufficientArgumentError(params, res)) {
-        return;
-      }
+      const pw = arg.pw ? arg.pw : "null";
+      const params = [arg.username, pw];
+      noSufficientArgumentError(params);
       const results = await connWithPromise(conn, sql, params);
       if (!selectTypeGuard(results)) {
         throw "Type mismatched";
