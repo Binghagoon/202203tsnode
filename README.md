@@ -728,10 +728,10 @@ Parameter
 
 ### Response
 
-| Name         | Type                     | Description | Required |
-| ------------ | ------------------------ | ----------- | -------- |
-| status       | "true"\|"false"\|"error" | 결과        | O        |
-| errorMessage | String\|undefined        | 오류메세지  | X        |
+| Name         | Type              | Description | Required |
+| ------------ | ----------------- | ----------- | -------- |
+| status       | Boolean\|"error"  | 결과        | O        |
+| errorMessage | String\|undefined | 오류메세지  | X        |
 
 ### 6.2. 콜가능 시간 리스트 가져오기
 
