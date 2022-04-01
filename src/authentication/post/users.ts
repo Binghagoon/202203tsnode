@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import catchError from "../../base_modules/catchError";
+import catchError from "../../base_modules/catch_error";
 import connWithPromise from "../../base_modules/conn_with_promise";
 import noSufficientArgumentError from "../../base_modules/not_sufficient_arguments";
 import { OkPacketTypeGuard } from "../../base_modules/type_guards/query_results_type_guards";

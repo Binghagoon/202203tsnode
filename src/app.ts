@@ -10,9 +10,9 @@ import message from "./message";
 import kakaoToken from "./kakao_token";
 import * as uuid from "./uuid";
 import { execSync } from "child_process";
-import catchError from "./base_modules/catchError";
+import catchError from "./base_modules/catch_error";
 import data from "./base_modules/data";
-import seoulTime from "./base_modules/seoulTime";
+import seoulTime from "./base_modules/seoul_time";
 import { verifyToken } from "./base_modules/verify_token";
 import time from "./time/execute";
 

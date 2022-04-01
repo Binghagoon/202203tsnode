@@ -5,7 +5,7 @@ import { allowCallStatus, statusToNumber } from "./base_modules/call_status";
 import { sendKakaoMessage } from "./message";
 import { CallStatus, Executable, QueryResults } from "types/types";
 import { RequestHandler } from "express";
-import catchError from "./base_modules/catchError";
+import catchError from "./base_modules/catch_error";
 import objectKeyRename from "./base_modules/objectKeyRename";
 import {
   OkPacketTypeGuard,

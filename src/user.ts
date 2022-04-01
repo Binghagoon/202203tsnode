@@ -8,7 +8,7 @@ import express, {
 import Connection from "mysql2/typings/mysql/lib/Connection";
 import { Executable, PathObject } from "../types/types";
 import * as sensitiveValue from "../data/sensitive-value.json";
-import catchError from "./base_modules/catchError";
+import catchError from "./base_modules/catch_error";
 import objectKeyRename from "./base_modules/objectKeyRename";
 import {OkPacketTypeGuard, selectTypeGuard} from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";

@@ -1,4 +1,4 @@
-import seoulTime from "./seoulTime";
+import seoulTime from "./seoul_time";
 import bsData from "./data";
 
 const timeOutWork = async () => {

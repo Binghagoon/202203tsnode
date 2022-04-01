@@ -2,7 +2,7 @@
 
 import { Executable } from "../types/types";
 import { RequestHandler } from "express";
-import catchError from "./base_modules/catchError";
+import catchError from "./base_modules/catch_error";
 import {
   OkPacketTypeGuard,
   selectTypeGuard,

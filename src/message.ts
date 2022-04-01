@@ -5,8 +5,8 @@ import { RequestHandler } from "express";
 import { Executable, SendKakaoMessageOptions } from "types/types";
 import { command } from "./curl";
 import * as sensitiveValue from "../data/sensitive-value.json";
-import catchError from "./base_modules/catchError";
-import { isErrorKakaoResult } from "./base_modules/type_guards/KakaoResultError";
+import catchError from "./base_modules/catch_error";
+import { isErrorKakaoResult } from "./base_modules/type_guards/kakao_result_error";
 import bmData from "./base_modules/data";
 
 function friendList() {
