@@ -47,7 +47,7 @@
 URL
 
 ```
-GET /users
+GET /auth/users
 Host: smartku.net/node
 ```
 
@@ -73,7 +73,7 @@ Parameter
 URL
 
 ```
-POST /users
+POST /auth/users
 Host: smartku.net/node
 ```
 
@@ -100,7 +100,7 @@ Parameter
 URL
 
 ```
-PUT   /users/:id
+PUT   /auth/users/:id
 Host: smartku.net/node
 ```
 

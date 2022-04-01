@@ -75,9 +75,9 @@ const execute: Executable = (app, conn) => {
       }
     });
 
-  app.put("/users/:id", putUsers);
+  app.put("/auth/users/:id", putUsers);
   return {
-    put: ["/users/:id"],
+    put: ["/auth/users/:id"],
   };
 };
 

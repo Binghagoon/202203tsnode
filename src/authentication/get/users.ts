@@ -33,9 +33,9 @@ const execute: Executable = (app, conn) => {
         });
       }
     });
-  app.get("/users", getUsers);
+  app.get("/auth/users", getUsers);
   return {
-    get: ["/users"],
+    get: ["/auth/users"],
   };
 };
 export default execute;

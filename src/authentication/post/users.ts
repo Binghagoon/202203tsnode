@@ -22,9 +22,9 @@ const execute :Executable=(app,conn)=>{
       id: results.insertId,
     });
   });
-  app.post("/users", postUsers);
+  app.post("/auth/users", postUsers);
   return{
-      post:["/users"],
+      post:["/auth/users"],
   }
 }
 export default execute;
