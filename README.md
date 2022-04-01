@@ -6,7 +6,7 @@
    1.1. [로그인](#11-로그인)<br>
    1.2. [회원가입](#12-회원가입)<br>
    1.3. [회원가입 승인](#13-회원가입-승인)<br>
-   1.4. [사용자 삭제](#14-사용자-삭제deprecated)<br>
+   1.4. [사용자 삭제](#14-사용자-삭제)<br>
    1.5. [모든 유저 불러오기](#15-모든-유저-불러오기)
 2. [사용자 정보](#2-사용자-정보)<br>
    2.1. [username으로 id 가져오기](#21-username으로-id-가져오기)<br>
@@ -132,14 +132,14 @@ Parameter
 | status       | "success" \| "error" | 상태                              | O        |
 | errorMessage | String               | 회원가입 승인 실패 시 오류 메시지 | X        |
 
-### 1.4. ~~사용자 삭제~~(deprecated)
+### 1.4. 사용자 삭제(deprecated)
 
 ### Request
 
 URL
 
 ```
-DELETE /user
+DELETE /user/:id
 Host: smartku.net/node
 ```
 
@@ -200,7 +200,7 @@ Parameter
 URL
 
 ```
-GET /get-id
+GET /users/id
 Host: smartku.net/node
 ```
 
@@ -223,7 +223,7 @@ Parameter
 URL
 
 ```
-GET /get-user-info
+GET /users/:id
 Host: smartku.net/node
 ```
 
@@ -255,7 +255,7 @@ Parameter
 URL
 
 ```
-GET /get-student-info
+GET /users/:id?type=student
 Host: smartku.net/node
 ```
 
@@ -280,7 +280,7 @@ Parameter
 URL
 
 ```
-GET /get-driver-info
+GET /users/:id?type=driver
 Host: smartku.net/node
 ```
 
@@ -306,17 +306,18 @@ Parameter
 URL
 
 ```
-POST /update-student-info
+PUT /users/:id
 Host: smartku.net/node
 ```
 
 Parameter
 
-| Name          | Type    | Description | Required |
-| ------------- | ------- | ----------- | -------- |
-| id            | Integer | 회원 번호   | O        |
-| studentNumber | String  | 학번        | O        |
-| major         | String  | 전공        | O        |
+| Name          | Type      | Description | Required |
+| ------------- | --------- | ----------- | -------- |
+| id            | Integer   | 회원 번호   | O        |
+| type          | "student" | 타입        | O        |
+| studentNumber | String    | 학번        | O        |
+| major         | String    | 전공        | O        |
 
 ### Response
 
@@ -330,7 +331,7 @@ Parameter
 ### Request
 
 URL
-POST /update-driver-info
+PUT /users/:id
 
 ```
 
@@ -339,12 +340,13 @@ Host: smartku.net/node
 
 Parameter
 
-| Name    | Type    | Description        | Required |
-| ------- | ------- | ------------------ | -------- |
-| id      | Integer | 회원 번호          | O        |
-| carid   | Integer | 자동차의 식별 번호 | O        |
-| license | String  | 자동차의 번호      | O        |
-| carname | String  | 차종               | O        |
+| Name    | Type      | Description        | Required |
+| ------- | --------- | ------------------ | -------- |
+| id      | Integer   | 회원 번호          | O        |
+| type    | "student" | 타입               | O        |
+| carid   | Integer   | 자동차의 식별 번호 | O        |
+| license | String    | 자동차의 번호      | O        |
+| carname | String    | 차종               | O        |
 
 ### Response
 
