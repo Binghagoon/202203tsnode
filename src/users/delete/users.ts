@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
-import catchError from "src/base_modules/catch_error";
-import connWithPromise from "src/base_modules/conn_with_promise";
-import { numericTest } from "src/base_modules/is_numeric";
-import noSufficientArgumentError from "src/base_modules/not_sufficient_arguments";
-import { OkPacketTypeGuard } from "src/base_modules/type_guards/query_results_type_guards";
+import catchError from "../../base_modules/catch_error";
+import connWithPromise from "../../base_modules/conn_with_promise";
+import { numericTest } from "../../base_modules/is_numeric";
+import noSufficientArgumentError from "../../base_modules/not_sufficient_arguments";
+import { OkPacketTypeGuard } from "../../base_modules/type_guards/query_results_type_guards";
 import { Executable } from "types/types";
 import sensitiveValue from "../../../data/sensitive-value.json";
 
