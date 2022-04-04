@@ -145,10 +145,10 @@ Host: smartku.net/node
 
 Parameter
 
-| Name     | Type    | Description      | Required |
-| -------- | ------- | ---------------- | -------- |
-| password | String  | 관리자 비밀번호  | O        |
-| id       | Integer | 삭제할 회원 번호 | O        |
+| Name | Type    | Description      | Required |
+| ---- | ------- | ---------------- | -------- |
+| key  | String  | 관리자 비밀번호  | O        |
+| id   | Integer | 삭제할 회원 번호 | O        |
 
 ### Response
 
@@ -170,9 +170,9 @@ Host: smartku.net/node
 
 Parameter
 
-| Name     | Type   | Description     | Required |
-| -------- | ------ | --------------- | -------- |
-| password | String | 관리자 비밀번호 | O        |
+| Name | Type   | Description     | Required |
+| ---- | ------ | --------------- | -------- |
+| key  | String | 관리자 비밀번호 | O        |
 
 ### Response
 
