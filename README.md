@@ -18,9 +18,9 @@
 3. [위치](#3-위치)<br>
    3.1. [학교 거점 불러오기](#31-학교-거점-불러오기)
 4. [사용자 좌표](#4-사용자-좌표)<br>
-   4.1. [삽입](#41-삽입)<br>
-   4.2. [갱신](#42-갱신)<br>
-   4.3. [삭제](#43-삭제)<br>
+   4.1. [삽입/갱신](#41-삽입/갱신)
+   4.2. [삭제](#42-삭제)<br>
+   4.3. [전체 수집](#43-전체-수집)
    4.4. [수집](#44-수집)
 5. [호출](#5-호출)<br>
    5.1. [학생이 호출할 때(삽입)](#51-학생이-호출할-때삽입)<br>
@@ -390,14 +390,14 @@ Parameter
 
 ## 4. 사용자 좌표
 
-### 4.1. 삽입
+### 4.1. 삽입/갱신
 
 ### Request
 
 URL
 
 ```
-POST /location-insert
+POST/PUT /location/:id
 Host: smartku.net/node
 ```
 
@@ -416,32 +416,6 @@ Parameter
 | status       | "success" \| "error" | 상태                                 | O        |
 | errorMessage | String               | 사용자 좌표 삽입 실패 시 오류 메시지 | X        |
 
-### 4.2. 갱신
-
-### Request
-
-URL
-
-```
-POST /location-update
-Host: smartku.net/node
-```
-
-Parameter
-
-| Name      | Type    | Description | Required |
-| --------- | ------- | ----------- | -------- |
-| id        | Integer | 회원 번호   | O        |
-| latitude  | Float   | 위도        | O        |
-| longitude | Float   | 경도        | O        |
-
-### Response
-
-| Name         | Type                 | Description                          | Required |
-| ------------ | -------------------- | ------------------------------------ | -------- |
-| status       | "success" \| "error" | 상태                                 | O        |
-| errorMessage | String               | 사용자 좌표 갱신 실패 시 오류 메시지 | X        |
-
 ### 4.3. 삭제
 
 ### Request
@@ -449,7 +423,7 @@ Parameter
 URL
 
 ```
-POST /location-delete
+DELETE /location/:id
 Host: smartku.net/node
 ```
 
@@ -466,6 +440,32 @@ Parameter
 | status       | "success" \| "error" | 상태                                 | O        |
 | errorMessage | String               | 사용자 좌표 삭제 실패 시 오류 메시지 | X        |
 
+### 4.4. 전체 수집
+
+### Request
+
+URL
+
+```
+GET /location
+Host: smartku.net/node
+```
+
+Parameter
+
+| Name | Type   | Description | Required |
+| ---- | ------ | ----------- | -------- |
+| key  | String | 관리자 키   | O        |
+
+### Response
+
+| Name         | Type                 | Description                          | Required |
+| ------------ | -------------------- | ------------------------------------ | -------- |
+| latitude     | Float                | 경도                                 | O        |
+| longitude    | Float                | 위도                                 | O        |
+| status       | "success" \| "error" | 상태                                 | X        |
+| errorMessage | String               | 사용자 좌표 수집 실패 시 오류 메시지 | X        |
+
 ### 4.4. 수집
 
 ### Request
@@ -473,7 +473,7 @@ Parameter
 URL
 
 ```
-GET /get-location
+GET /location/:id
 Host: smartku.net/node
 ```
 

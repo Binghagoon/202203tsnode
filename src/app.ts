@@ -15,12 +15,16 @@ import data from "./base_modules/data";
 import seoulTime from "./base_modules/seoul_time";
 import { verifyToken } from "./base_modules/verify_token";
 import time from "./time/execute";
+import merge from "./base_modules/merge_path_object";
+import users from "./users/execute";
+import location from "./location/execute";
 
 const app = express();
 const conn = mysql.createConnection(sensitive.dbinfo);
 const revision = execSync("git rev-parse HEAD").toString().trim();
 const branch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
 const shortRevision = revision.substring(0, 6);
+let verbose: boolean = false;
 conn.connect((err) => {
   if (err) {
     console.error(err);
@@ -69,6 +73,8 @@ shellArgs.forEach((value, index, array) => {
       console.log(e);
       console.error(e);
     }
+  } else if (value == "-v") {
+    verbose = true;
   }
 });
 
@@ -82,15 +88,25 @@ const executableJS = [
   message,
   kakaoToken,
   time,
+  users,
+  location,
 ];
 const promise = executableJS.map((jsFile) => jsFile(app, conn));
 Promise.all(promise)
   .then(function (values) {
     console.log("All files are executed.");
+    if (verbose)
+      console.log(
+        "Available path list is " +
+          JSON.stringify(merge(...values), undefined, 2)
+      );
   })
   .catch(function (error) {
     debugger;
     console.log("Error occurred.");
+    console.log(error);
+    console.error(error);
+    throw error;
   });
 verifyToken();
 
