@@ -8,14 +8,19 @@ import express, {
 import Connection from "mysql2/typings/mysql/lib/Connection";
 import { Executable, PathObject } from "../types/types";
 import * as sensitiveValue from "../data/sensitive-value.json";
-import catchError from "./base_modules/catchError";
+import catchError from "./base_modules/catch_error";
 import objectKeyRename from "./base_modules/objectKeyRename";
-import {OkPacketTypeGuard, selectTypeGuard} from "./base_modules/type_guards/query_results_type_guards";
+import {
+  OkPacketTypeGuard,
+  selectTypeGuard,
+} from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
 import objectKeyCopy from "./base_modules/object_key_copy";
 
 const execute: Executable = async function (app, conn) {
+  
+  /**@deprecated change to /users/id?username=? */
   const getId: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql = "SELECT `id` FROM `user` WHERE username = ?";
@@ -28,7 +33,7 @@ const execute: Executable = async function (app, conn) {
       let result = results[0];
       res.send(result);
     });
-
+  /** @deprecated change to /users/:id */
   const getUserInfo: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql = "SELECT *  FROM user_view WHERE id = ?";
@@ -43,6 +48,7 @@ const execute: Executable = async function (app, conn) {
       }
     });
 
+  /** @deprecated change to /users/:id?type="student" */
   const getStudentInfo: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql =
@@ -58,9 +64,11 @@ const execute: Executable = async function (app, conn) {
       res.send(result);
     });
 
+  /** @deprecated change to /users/:id?type="driver" */
   const getDriverInfo: RequestHandler = (req, res) =>
     catchError(res, async () => {
-      const sql = "SELECT license, carname, car_id, phone FROM user_view WHERE `id`=?";
+      const sql =
+        "SELECT license, carname, car_id, phone FROM user_view WHERE `id`=?";
       const id = req.query.id;
       noSufficientArgumentError([id]);
       const results = await connWithPromise(conn, sql, [id]);
@@ -77,6 +85,7 @@ const execute: Executable = async function (app, conn) {
       res.send(result);
     });
 
+  /** @deprecated change to PUT /users/:id [type="student"] */
   const postUpdateStudentInfo: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql =
@@ -101,6 +110,7 @@ const execute: Executable = async function (app, conn) {
         });
       }
     });
+  /** @deprecated change to PUT /users/:id [type="driver"] */
   const postUpdateDriverInfo: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql = "UPDATE driver_info SET license = ?, name = ? WHERE `id` = ?";
@@ -124,6 +134,7 @@ const execute: Executable = async function (app, conn) {
         });
       }
     });
+    /**@deprecated changed to GET /users */
   const getAllUsers: RequestHandler = (req, res) =>
     catchError(res, async () => {
       if (req.query.key != sensitiveValue.key) {

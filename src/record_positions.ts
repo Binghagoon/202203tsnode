@@ -2,7 +2,7 @@
 
 import { Executable } from "../types/types";
 import { RequestHandler } from "express";
-import catchError from "./base_modules/catchError";
+import catchError from "./base_modules/catch_error";
 import {selectTypeGuard} from "./base_modules/type_guards/query_results_type_guards";
 import connWithPromise from "./base_modules/conn_with_promise";
 

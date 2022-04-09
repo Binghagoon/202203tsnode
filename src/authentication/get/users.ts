@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import catchError from "../../base_modules/catchError";
+import catchError from "../../base_modules/catch_error";
 import connWithPromise from "../../base_modules/conn_with_promise";
 import noSufficientArgumentError from "../../base_modules/not_sufficient_arguments";
 import { selectTypeGuard } from "../../base_modules/type_guards/query_results_type_guards";
@@ -33,9 +33,9 @@ const execute: Executable = (app, conn) => {
         });
       }
     });
-  app.get("/users", getUsers);
+  app.get("/auth/users", getUsers);
   return {
-    get: ["/users"],
+    get: ["/auth/users"],
   };
 };
 export default execute;

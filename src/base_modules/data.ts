@@ -2,7 +2,7 @@ import { TokenObject } from "types/types";
 import { exec } from "child_process";
 import { writeFile } from "fs";
 import tokenObjectTypeGuard from "./type_guards/token_object";
-import seoulTime from "./seoulTime";
+import seoulTime from "./seoul_time";
 import { command } from "../curl";
 
 let port: number | null = null;

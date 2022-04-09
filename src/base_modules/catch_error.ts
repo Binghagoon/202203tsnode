@@ -1,8 +1,8 @@
-import isError from "./type_guards/Error";
-import isQueryError from "./type_guards/QueryError";
+import isError from "./type_guards/is_error";
+import isQueryError from "./type_guards/is_query_error";
 import { Response } from "express";
-import seoul from "./seoulTime";
-import isKakaoError from "./type_guards/KakaoError";
+import seoul from "./seoul_time";
+import isKakaoError from "./type_guards/kakao_error";
 
 /**
  * message string property in Error Object must have 3-digit end of string which is HTTP error code.

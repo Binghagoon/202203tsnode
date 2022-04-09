@@ -6,7 +6,7 @@
    1.1. [로그인](#11-로그인)<br>
    1.2. [회원가입](#12-회원가입)<br>
    1.3. [회원가입 승인](#13-회원가입-승인)<br>
-   1.4. [사용자 삭제](#14-사용자-삭제deprecated)<br>
+   1.4. [사용자 삭제](#14-사용자-삭제)<br>
    1.5. [모든 유저 불러오기](#15-모든-유저-불러오기)
 2. [사용자 정보](#2-사용자-정보)<br>
    2.1. [username으로 id 가져오기](#21-username으로-id-가져오기)<br>
@@ -18,9 +18,9 @@
 3. [위치](#3-위치)<br>
    3.1. [학교 거점 불러오기](#31-학교-거점-불러오기)
 4. [사용자 좌표](#4-사용자-좌표)<br>
-   4.1. [삽입](#41-삽입)<br>
-   4.2. [갱신](#42-갱신)<br>
-   4.3. [삭제](#43-삭제)<br>
+   4.1. [삽입/갱신](#41-삽입/갱신)
+   4.2. [삭제](#42-삭제)<br>
+   4.3. [전체 수집](#43-전체-수집)
    4.4. [수집](#44-수집)
 5. [호출](#5-호출)<br>
    5.1. [학생이 호출할 때(삽입)](#51-학생이-호출할-때삽입)<br>
@@ -47,7 +47,7 @@
 URL
 
 ```
-GET /users
+GET /auth/users
 Host: smartku.net/node
 ```
 
@@ -73,7 +73,7 @@ Parameter
 URL
 
 ```
-POST /users
+POST /auth/users
 Host: smartku.net/node
 ```
 
@@ -100,7 +100,7 @@ Parameter
 URL
 
 ```
-PUT   /users/:id
+PUT   /auth/users/:id
 Host: smartku.net/node
 ```
 
@@ -132,23 +132,23 @@ Parameter
 | status       | "success" \| "error" | 상태                              | O        |
 | errorMessage | String               | 회원가입 승인 실패 시 오류 메시지 | X        |
 
-### 1.4. ~~사용자 삭제~~(deprecated)
+### 1.4. 사용자 삭제(deprecated)
 
 ### Request
 
 URL
 
 ```
-DELETE /user
+DELETE /user/:id
 Host: smartku.net/node
 ```
 
 Parameter
 
-| Name     | Type    | Description      | Required |
-| -------- | ------- | ---------------- | -------- |
-| password | String  | 관리자 비밀번호  | O        |
-| id       | Integer | 삭제할 회원 번호 | O        |
+| Name | Type    | Description      | Required |
+| ---- | ------- | ---------------- | -------- |
+| key  | String  | 관리자 비밀번호  | O        |
+| id   | Integer | 삭제할 회원 번호 | O        |
 
 ### Response
 
@@ -170,9 +170,9 @@ Host: smartku.net/node
 
 Parameter
 
-| Name     | Type   | Description     | Required |
-| -------- | ------ | --------------- | -------- |
-| password | String | 관리자 비밀번호 | O        |
+| Name | Type   | Description     | Required |
+| ---- | ------ | --------------- | -------- |
+| key  | String | 관리자 비밀번호 | O        |
 
 ### Response
 
@@ -200,7 +200,7 @@ Parameter
 URL
 
 ```
-GET /get-id
+GET /users/id
 Host: smartku.net/node
 ```
 
@@ -223,7 +223,7 @@ Parameter
 URL
 
 ```
-GET /get-user-info
+GET /users/:id
 Host: smartku.net/node
 ```
 
@@ -255,7 +255,7 @@ Parameter
 URL
 
 ```
-GET /get-student-info
+GET /users/:id?type=student
 Host: smartku.net/node
 ```
 
@@ -280,7 +280,7 @@ Parameter
 URL
 
 ```
-GET /get-driver-info
+GET /users/:id?type=driver
 Host: smartku.net/node
 ```
 
@@ -306,17 +306,18 @@ Parameter
 URL
 
 ```
-POST /update-student-info
+PUT /users/:id
 Host: smartku.net/node
 ```
 
 Parameter
 
-| Name          | Type    | Description | Required |
-| ------------- | ------- | ----------- | -------- |
-| id            | Integer | 회원 번호   | O        |
-| studentNumber | String  | 학번        | O        |
-| major         | String  | 전공        | O        |
+| Name          | Type      | Description | Required |
+| ------------- | --------- | ----------- | -------- |
+| id            | Integer   | 회원 번호   | O        |
+| type          | "student" | 타입        | O        |
+| studentNumber | String    | 학번        | O        |
+| major         | String    | 전공        | O        |
 
 ### Response
 
@@ -330,7 +331,7 @@ Parameter
 ### Request
 
 URL
-POST /update-driver-info
+PUT /users/:id
 
 ```
 
@@ -339,12 +340,13 @@ Host: smartku.net/node
 
 Parameter
 
-| Name    | Type    | Description        | Required |
-| ------- | ------- | ------------------ | -------- |
-| id      | Integer | 회원 번호          | O        |
-| carid   | Integer | 자동차의 식별 번호 | O        |
-| license | String  | 자동차의 번호      | O        |
-| carname | String  | 차종               | O        |
+| Name    | Type      | Description        | Required |
+| ------- | --------- | ------------------ | -------- |
+| id      | Integer   | 회원 번호          | O        |
+| type    | "student" | 타입               | O        |
+| carid   | Integer   | 자동차의 식별 번호 | O        |
+| license | String    | 자동차의 번호      | O        |
+| carname | String    | 차종               | O        |
 
 ### Response
 
@@ -388,14 +390,14 @@ Parameter
 
 ## 4. 사용자 좌표
 
-### 4.1. 삽입
+### 4.1. 삽입/갱신
 
 ### Request
 
 URL
 
 ```
-POST /location-insert
+POST/PUT /location/:id
 Host: smartku.net/node
 ```
 
@@ -414,32 +416,6 @@ Parameter
 | status       | "success" \| "error" | 상태                                 | O        |
 | errorMessage | String               | 사용자 좌표 삽입 실패 시 오류 메시지 | X        |
 
-### 4.2. 갱신
-
-### Request
-
-URL
-
-```
-POST /location-update
-Host: smartku.net/node
-```
-
-Parameter
-
-| Name      | Type    | Description | Required |
-| --------- | ------- | ----------- | -------- |
-| id        | Integer | 회원 번호   | O        |
-| latitude  | Float   | 위도        | O        |
-| longitude | Float   | 경도        | O        |
-
-### Response
-
-| Name         | Type                 | Description                          | Required |
-| ------------ | -------------------- | ------------------------------------ | -------- |
-| status       | "success" \| "error" | 상태                                 | O        |
-| errorMessage | String               | 사용자 좌표 갱신 실패 시 오류 메시지 | X        |
-
 ### 4.3. 삭제
 
 ### Request
@@ -447,7 +423,7 @@ Parameter
 URL
 
 ```
-POST /location-delete
+DELETE /location/:id
 Host: smartku.net/node
 ```
 
@@ -464,6 +440,32 @@ Parameter
 | status       | "success" \| "error" | 상태                                 | O        |
 | errorMessage | String               | 사용자 좌표 삭제 실패 시 오류 메시지 | X        |
 
+### 4.4. 전체 수집
+
+### Request
+
+URL
+
+```
+GET /location
+Host: smartku.net/node
+```
+
+Parameter
+
+| Name | Type   | Description | Required |
+| ---- | ------ | ----------- | -------- |
+| key  | String | 관리자 키   | O        |
+
+### Response
+
+| Name         | Type                 | Description                          | Required |
+| ------------ | -------------------- | ------------------------------------ | -------- |
+| latitude     | Float                | 경도                                 | O        |
+| longitude    | Float                | 위도                                 | O        |
+| status       | "success" \| "error" | 상태                                 | X        |
+| errorMessage | String               | 사용자 좌표 수집 실패 시 오류 메시지 | X        |
+
 ### 4.4. 수집
 
 ### Request
@@ -471,7 +473,7 @@ Parameter
 URL
 
 ```
-GET /get-location
+GET /location/:id
 Host: smartku.net/node
 ```
 

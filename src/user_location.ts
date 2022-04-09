@@ -2,7 +2,7 @@
 
 import { Executable } from "../types/types";
 import { RequestHandler } from "express";
-import catchError from "./base_modules/catchError";
+import catchError from "./base_modules/catch_error";
 import {
   OkPacketTypeGuard,
   selectTypeGuard,
@@ -11,6 +11,7 @@ import connWithPromise from "./base_modules/conn_with_promise";
 import noSufficientArgumentError from "./base_modules/not_sufficient_arguments";
 
 const execute: Executable = async (app, conn) => {
+  /**@deprecated changed to POST /location/:id */
   const locationInsert: RequestHandler = async (req, res) =>
     catchError(res, async () => {
       const sql =
@@ -38,6 +39,7 @@ const execute: Executable = async (app, conn) => {
       } else throw "Not inserted.";
     });
 
+  /**@deprecated changed to POST /location/:id */
   const locationUpdate: RequestHandler = async (req, res) =>
     catchError(res, async () => {
       const sql =
@@ -56,6 +58,7 @@ const execute: Executable = async (app, conn) => {
       });
     });
 
+  /**@deprecated changed to DELETE /location/:id */
   const locationDelete: RequestHandler = async (req, res) =>
     catchError(res, async () => {
       const sql = "DELETE FROM user_location WHERE id = ?;";
@@ -77,6 +80,7 @@ const execute: Executable = async (app, conn) => {
       console.log("someone is untraced.");
     });
 
+  /**@deprecated changed to GET /location/:id */
   const getLocation: RequestHandler = async (req, res) =>
     catchError(res, async () => {
       const sql = "SELECT latitude, longitude FROM user_location WHERE id = ?";

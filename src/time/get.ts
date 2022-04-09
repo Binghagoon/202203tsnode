@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
-import allowTime from "../base_modules/allowTime";
-import catchError from "../base_modules/catchError";
+import allowTime from "../base_modules/allow_times";
+import catchError from "../base_modules/catch_error";
 import connWithPromise from "../base_modules/conn_with_promise";
 import noSufficientArgumentError from "../base_modules/not_sufficient_arguments";
 import { selectTypeGuard } from "../base_modules/type_guards/query_results_type_guards";
