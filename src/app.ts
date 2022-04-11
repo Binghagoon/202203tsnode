@@ -31,6 +31,10 @@ conn.connect((err) => {
     throw err;
   }
   console.log("Connected to database.");
+  setTimeout(() =>
+    conn.query("SELECT 1;",
+      () => console.log("Query which let connection live send.")),
+    14000 * 1000)// interactive_time out = 28800
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -98,7 +102,7 @@ Promise.all(promise)
     if (verbose)
       console.log(
         "Available path list is " +
-          JSON.stringify(merge(...values), undefined, 2)
+        JSON.stringify(merge(...values), undefined, 2)
       );
   })
   .catch(function (error) {
@@ -112,10 +116,17 @@ verifyToken();
 
 app.get("/", (req, res) =>
   catchError(res, async () => {
-    let d = new Date();
+    let testQuery = new Promise((resolve, reject) => conn.query("SELECT 1;", (err) => err ? reject(err) : resolve(true)));
+    let connectionState;
+    try {
+      if (await testQuery) connectionState = "connected";
+    } catch (e) {
+      connectionState = "disconnected or error";
+    }
     res.send(
-      `Server Alive!! It's time is  ${seoulTime.getTime()}  maybe this is KST. ` +
-        `Git branch is ${branch} and git revision is ${revision}.`
+      `Server Alive!! It's time is  ${seoulTime.getTime()}  maybe this is KST.\n` +
+      `Git branch is ${branch} and git revision is ${revision}.\n` +
+      `Mysql connection is ${connectionState}.\n`
     );
   })
 );
