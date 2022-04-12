@@ -752,8 +752,8 @@ Parameter
 | Name    | Type    | Description | Required |
 | ------- | ------- | ----------- | -------- |
 | id      | Integer | 구분번호    | O        |
-| start   | Integer | 시작시간    | X        |
-| end     | Integer | 종료시간    | X        |
+| start   | Integer | 시작시간    | O        |
+| end     | Integer | 종료시간    | O        |
 | comment | String  | 설명        | X        |
 
 ### 6.3. 콜가능 특정 시간 가져오기
@@ -784,7 +784,7 @@ List
 ### Request
 
 ```
-POST /allow-times/:id
+PUT /allow-times/:id
 Host: smartku.net/node
 ```
 
@@ -809,7 +809,7 @@ Parameter
 ### Request
 
 ```
-PUT /allow-times
+POST /allow-times
 Host: smartku.net/node
 ```
 

@@ -11,7 +11,7 @@ import allowTime from "../base_modules/allow_times";
 import getExe from "./get";
 
 const execute: Executable = async (app, conn) => {
-  const postAllowTimes: RequestHandler = (req, res) =>
+  const putAllowTimes: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql =
         "UPDATE allow_time SET start = ?, end = ?, comment = ? WHERE id = ?;";
@@ -34,7 +34,7 @@ const execute: Executable = async (app, conn) => {
       }
     });
 
-  const putAllowTimes: RequestHandler = (req, res) =>
+  const postAllowTimes: RequestHandler = (req, res) =>
     catchError(res, async () => {
       const sql = "INSERT INTO allow_time (start,end,comment) VALUES (?,?,?);";
       const body = req.body;
@@ -75,13 +75,13 @@ const execute: Executable = async (app, conn) => {
 
   const get = await getExe(app, conn);
   if (typeof get == "object") {
-    app.post("/allow-times/:id", postAllowTimes);
-    app.put("/allow-times", putAllowTimes);
+    app.put("/allow-times/:id", putAllowTimes);
+    app.post("/allow-times", postAllowTimes);
     app.delete("/allow-times/:id", deleteAllowTimes);
     return {
       get: get.get,
-      post: ["/allow-times/:id"],
-      put: ["/allow-times"],
+      put: ["/allow-times/:id"],
+      post: ["/allow-times"],
       delete: ["/allow-times/:id"],
     };
   } else throw new Error("time/get has not executed.");
