@@ -1,4 +1,4 @@
-const d = new Date();
+const date = () => new Date();
 const addSeconds = function (date: Date, diff?: number) {
   if (!diff) return date;
   let newDate = new Date(date);
@@ -7,12 +7,11 @@ const addSeconds = function (date: Date, diff?: number) {
 };
 /** `diff` should be how much add seconds */
 const getTime = (diff?: number) => {
-  return addSeconds(d, diff).toLocaleString(undefined, {
+  return addSeconds(date(), diff).toLocaleString(undefined, {
     timeZone: "Asia/Seoul",
   });
 };
-d.toLocaleDateString()
-const getHour = () => (d.getUTCHours() + 9) % 24;
-const getDay = () => d.getDay();   //It is working well? I don't know.
+const getHour = () => (date().getUTCHours() + 9) % 24;
+const getDay = () => date().getDay();   //It is working well? I don't know.
 const getTimeStamp = () => Math.floor(Date.now() / 1000);
 export default { getTime, getHour, getTimeStamp, getDay };
