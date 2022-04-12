@@ -235,18 +235,18 @@ Parameter
 
 ### Response
 
-| Name          | Type                                     | Description        | Required |
-| ------------- | ---------------------------------------- | ------------------ | -------- |
-| id            | Integer                                  | 회원 번호          | O        |
-| realname      | String                                   | 회원 이름          | O        |
-| username      | String                                   | 회원 아이디        | O        |
-| email         | String                                   | 회원 이메일 주소   | O        |
-| phone         | String                                   | 회원 휴대전화 번호 | O        |
-| role          | "ADMINISTRATOR" \| "DRIVER" \| "STUDENT" | 회원 역할          | O        |
-| license       | String                                   | 기사일 때 ?        | X        |
-| carname       | String                                   | 기사일 때 ?        | X        |
-| studentNumber | String                                   | 학생일 때 학번     | X        |
-| major         | String                                   | 학생일 때 전공     | X        |
+| Name          | Type                                     | Description                     | Required |
+| ------------- | ---------------------------------------- | ------------------------------- | -------- |
+| id            | Integer                                  | 회원 번호                       | O        |
+| realname      | String                                   | 회원 이름                       | O        |
+| username      | String                                   | 회원 아이디                     | O        |
+| email         | String                                   | 회원 이메일 주소                | O        |
+| phone         | String                                   | 회원 휴대전화 번호              | O        |
+| role          | "ADMINISTRATOR" \| "DRIVER" \| "STUDENT" | 회원 역할                       | O        |
+| license       | String                                   | 기사일 때 차 번호(ex:11가 2222) | X        |
+| carname       | String                                   | 기사일 때 차 종류               | X        |
+| studentNumber | String                                   | 학생일 때 학번                  | X        |
+| major         | String                                   | 학생일 때 전공                  | X        |
 
 ### 2.3. 학생 정보 가져오기
 
