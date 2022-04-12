@@ -20,7 +20,7 @@ import users from "./users/execute";
 import location from "./location/execute";
 
 const app = express();
-const conn = mysql.createConnection(sensitive.dbinfo);
+let conn = mysql.createConnection(sensitive.dbinfo);
 const revision = execSync("git rev-parse HEAD").toString().trim();
 const branch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
 const shortRevision = revision.substring(0, 6);
@@ -36,6 +36,15 @@ conn.connect((err) => {
       () => console.log("Query which let connection live send.")),
     14000 * 1000)// interactive_time out = 28800
 });
+conn.on("error", (err: { code: any; }) => {
+  console.log("DB Error : ", err);
+  if (err.code == 'PROTOCOL_CONNECTION_LOST') {
+    conn = mysql.createConnection(sensitive.dbinfo);
+  } else {
+    console.log("Not expected error.");
+  }  
+
+})
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -141,11 +150,9 @@ app.get("/", (req, res) =>
 //app.post("/session-update", serverFunction.SessionUpdate(conn));
 
 const OpenPort = (portNumber: number) =>
-  new Promise<null>((resolve, reject) =>
+  new Promise<void>((resolve, reject) =>
     app
-      .listen(portNumber, () => {
-        resolve(null);
-      })
+      .listen(portNumber, resolve)
       .on("error", reject)
   );
 OpenPort(data.getPort())
