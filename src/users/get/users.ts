@@ -5,9 +5,10 @@ import { selectTypeGuard } from "../../base_modules/type_guards/query_results_ty
 import { Executable } from "types/types";
 import sensitiveValue from "../../../data/sensitive-value.json";
 import noSufficientArgumentError from "../../base_modules/not_sufficient_arguments";
+import objectKeyRename from "../../base_modules/objectKeyRename";
 
 const execute: Executable = (app, conn) => {
-  const getAllUsers: RequestHandler = (req, res) =>
+  const getUsers: RequestHandler = (req, res) =>
     catchError(res, async () => {
       if (req.query.key != sensitiveValue.key) {
         throw new Error("key is incorrect 400");
@@ -17,37 +18,16 @@ const execute: Executable = (app, conn) => {
       if (!selectTypeGuard(results)) {
         throw "Type mismatched";
       }
+      results.map(value => {
+        objectKeyRename(value, "student_number", "studentNumber");
+        objectKeyRename(value, "car_id", "carId");
+      });
+
       res.send(results);
     });
-  const getId: RequestHandler = (req, res) =>
-    catchError(res, async () => {
-      const sql = "SELECT `id` FROM `user` WHERE username = ?";
-      const username = req.query.username;
-      noSufficientArgumentError([username]);
-      const results = await connWithPromise(conn, sql, [username]);
-      if (!selectTypeGuard(results)) {
-        throw "Type mismatched";
-      }
-      let result = results[0];
-      res.send(result);
-    });
-  const getUsers: RequestHandler = (req, res) =>
-    catchError(res, async () => {
-      const sql = "SELECT * FROM user_view WHERE id = ?";
-      const id = req.params.id;
-      noSufficientArgumentError([id]);
-      const results = await connWithPromise(conn, sql, [id]);
-      if (!selectTypeGuard(results)) {
-        throw "Type mismatched";
-      }
-      let result = results[0];
-      res.send(result);
-    });
-  app.get("/users", getAllUsers);
-  app.get("/users/id", getId);
-  app.get("/users/:id", getUsers);
+  app.get("/users", getUsers);
   return {
-    get: ["/users", "/users/id", "/users/:id"],
+    get: ["/users"],
   };
 };
 export default execute;

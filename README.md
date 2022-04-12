@@ -269,7 +269,6 @@ Parameter
 
 | Name          | Type    | Description | Required |
 | ------------- | ------- | ----------- | -------- |
-| id            | Integer | 회원 번호   | O        |
 | studentNumber | String  | 학번        | X        |
 | major         | String  | 전공        | X        |
 
@@ -296,7 +295,6 @@ Parameter
 | ----------- | ------- | ------------------------- | -------- |
 | carId       | Integer | 자동차의 식별 번호(N호차) | O        |
 | license     | String  | 자동차의 번호(00가0000)   | X        |
-| phoneNumber | String  | 핸드폰 번호               | X        |
 | carname     | String  | 차종                      | X        |
 
 ### 2.5. 학생 정보 수정하기
