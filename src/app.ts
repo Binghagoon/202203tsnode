@@ -40,9 +40,10 @@ conn.on("error", (err: { code: any; }) => {
   console.log("DB Error : ", err);
   if (err.code == 'PROTOCOL_CONNECTION_LOST') {
     conn = mysql.createConnection(sensitive.dbinfo);
+    console.log("Connection rebuild.");
   } else {
     console.log("Not expected error.");
-  }  
+  }
 
 })
 app.use(express.json());
